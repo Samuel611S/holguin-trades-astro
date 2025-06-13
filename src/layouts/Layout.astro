@@ -13,31 +13,35 @@ export interface Props {
   canonicalUrl?: string;
 }
 
+// Check if this is the homepage to use special homepage meta
 const isHomePage = Astro.url.pathname === '/' || Astro.url.pathname === '';
 
-const {
-  title = isHomePage ? siteData.homepage.title : siteData.businessName,
+const { 
+  title = isHomePage ? siteData.homepage.title : siteData.businessName, 
   description = isHomePage ? siteData.homepage.description : siteData.description,
   ogImage = siteData.seo.ogImage,
   noIndex = false,
-  canonicalUrl,
+  canonicalUrl
 } = Astro.props;
 
-const fullTitle = isHomePage
+// Use different title logic for homepage vs other pages
+const fullTitle = isHomePage 
   ? siteData.homepage.title
-  : title === siteData.businessName
-  ? title
-  : `${title} | ${siteData.businessName}`;
+  : title === siteData.businessName 
+    ? title 
+    : `${title} | ${siteData.businessName}`;
 
 const baseUrl = Astro.site?.href || siteData.baseUrl;
 const fullOgImage = ogImage.startsWith('http') ? ogImage : `${baseUrl}${ogImage}`;
 const canonical = canonicalUrl || `${baseUrl}${Astro.url.pathname}`;
 
+// Use homepage-specific meta for social media if on homepage
 const ogTitle = isHomePage ? siteData.homepage.ogTitle : fullTitle;
 const ogDescription = isHomePage ? siteData.homepage.ogDescription : description;
 const twitterTitle = isHomePage ? siteData.homepage.twitterTitle : fullTitle;
 const twitterDescription = isHomePage ? siteData.homepage.twitterDescription : description;
 
+// Generate animated dots server-side for better performance
 const animatedDots = Array.from({ length: 50 }, (_, i) => ({
   id: i,
   size: Math.random() * 3 + 1,
@@ -56,17 +60,20 @@ const animatedDots = Array.from({ length: 50 }, (_, i) => ({
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonical} />
+    
     {noIndex && <meta name="robots" content="noindex, nofollow" />}
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+    
+    <!-- Preload critical fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link 
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" 
       rel="stylesheet"
-    />
-
+    >
+    
     <title>{fullTitle}</title>
 
+    <!-- OpenGraph meta -->
     <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={ogDescription} />
     <meta property="og:image" content={fullOgImage} />
@@ -74,6 +81,7 @@ const animatedDots = Array.from({ length: 50 }, (_, i) => ({
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={siteData.businessName} />
 
+    <!-- Twitter meta -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={twitterTitle} />
     <meta name="twitter:description" content={twitterDescription} />
@@ -81,10 +89,12 @@ const animatedDots = Array.from({ length: 50 }, (_, i) => ({
     <meta name="twitter:site" content={siteData.social.twitterHandle} />
     <meta name="twitter:creator" content="@AlfredoHolguin" />
 
+    <!-- Additional SEO meta -->
     <meta name="author" content={siteData.author} />
     <meta name="keywords" content={siteData.keywords.join(', ')} />
     <meta name="theme-color" content="#111827" />
-
+    
+    <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "Organization",
@@ -102,49 +112,92 @@ const animatedDots = Array.from({ length: 50 }, (_, i) => ({
         siteData.social.discord
       ]
     })} />
+
+    <!-- Critical CSS for dark theme -->
+    <style>
+      html, body {
+        background-color: #111827 !important;
+        color: #ffffff !important;
+      }
+      
+      /* Prevent FOUC (Flash of Unstyled Content) */
+      .bg-loading {
+        background: linear-gradient(135deg, #111827 0%, #1f2937 50%, #0f172a 100%);
+      }
+      
+      /* Optimize animations for better performance */
+      .animate-dots {
+        will-change: transform, opacity;
+        backface-visibility: hidden;
+      }
+      
+      /* Reduce motion for users who prefer it */
+      @media (prefers-reduced-motion: reduce) {
+        .animate-pulse-glow,
+        .animate-wave,
+        .animate-dots {
+          animation: none !important;
+        }
+      }
+    </style>
   </head>
 
   <body class="bg-gray-900 text-white min-h-screen font-sans antialiased bg-loading">
-    <a
-      href="#main-content"
+    <!-- Skip to main content for accessibility -->
+    <a 
+      href="#main-content" 
       class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary-600 text-white px-4 py-2 rounded-md z-50"
     >
       Skip to main content
     </a>
 
     <div class="relative bg-gray-900 min-h-screen overflow-hidden">
-
-      <!-- 🌌 Background Layer (fixed behind content) -->
-      <div class="fixed inset-0 z-[-1] pointer-events-none select-none" aria-hidden="true">
+      <!-- Background Elements -->
+      <div class="fixed inset-0 z-0" role="presentation" aria-hidden="true">
+        <!-- Animated gradient background -->
         <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900 opacity-80"></div>
 
+        <!-- Optimized animated dots -->
         <div class="absolute inset-0 overflow-hidden">
           {animatedDots.map((dot) => (
-            <div
+            <div 
               key={dot.id}
-              class="absolute rounded-full bg-primary-500/20 animate-pulse-glow animate-dots"
-              style={`width: ${dot.size}px; height: ${dot.size}px; top: ${dot.top}%; left: ${dot.left}%; animation-delay: ${dot.delay}s; animation-duration: ${dot.duration}s;`}
+              class="absolute rounded-full bg-primary-500/20 animate-pulse-glow animate-dots" 
+              style={`
+                width: ${dot.size}px; 
+                height: ${dot.size}px; 
+                top: ${dot.top}%; 
+                left: ${dot.left}%; 
+                animation-delay: ${dot.delay}s; 
+                animation-duration: ${dot.duration}s;
+              `}
             />
           ))}
         </div>
 
+        <!-- Enhanced wave effect -->
         <div class="absolute bottom-0 left-0 right-0 h-64 overflow-hidden opacity-10">
-          <svg class="absolute bottom-0 left-0 w-full h-full animate-wave" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <svg 
+            class="absolute bottom-0 left-0 w-full h-full animate-wave"
+            viewBox="0 0 1200 120" 
+            preserveAspectRatio="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <defs>
               <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.3" />
                 <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:0.1" />
               </linearGradient>
             </defs>
-            <path
-              d="M0,120 C150,100 350,0 600,60 C850,120 1050,60 1200,80 L1200,120 Z"
+            <path 
+              d="M0,120 C150,100 350,0 600,60 C850,120 1050,60 1200,80 L1200,120 Z" 
               fill="url(#waveGradient)"
             />
           </svg>
         </div>
       </div>
 
-      <!-- ✨ Foreground Content -->
+      <!-- Content -->
       <div class="relative z-10">
         <Header />
         <main id="main-content" class="min-h-screen" role="main">
@@ -154,9 +207,11 @@ const animatedDots = Array.from({ length: 50 }, (_, i) => ({
       </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Enhanced scroll animations with performance optimizations -->
     <script>
+      // Optimized scroll reveal with Intersection Observer
       document.addEventListener('DOMContentLoaded', () => {
+        // Use Intersection Observer for better performance
         const observerOptions = {
           threshold: 0.1,
           rootMargin: '0px 0px -50px 0px'
@@ -167,35 +222,57 @@ const animatedDots = Array.from({ length: 50 }, (_, i) => ({
             if (entry.isIntersecting) {
               const element = entry.target;
               const animationClass = element.dataset.animation || 'animate-fade-in';
+              
+              // Add animation with a small delay for smoother effect
               requestAnimationFrame(() => {
                 element.classList.add(animationClass);
                 element.classList.remove('opacity-0');
               });
+              
+              // Stop observing once animated
               observer.unobserve(element);
             }
           });
         }, observerOptions);
 
+        // Observe all elements with reveal-on-scroll class
         document.querySelectorAll('.reveal-on-scroll').forEach(el => {
           observer.observe(el);
         });
 
+        // Smooth scroll enhancement
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
           anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
             if (target) {
-              target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+              });
             }
           });
         });
 
+        // Performance: Remove loading background after page loads
         setTimeout(() => {
           document.body.classList.remove('bg-loading');
         }, 100);
       });
+
+      // Error boundary for animations
+      window.addEventListener('error', (e) => {
+        if (e.message.includes('animation')) {
+          console.warn('Animation error caught:', e.message);
+          // Fallback: disable problematic animations
+          document.querySelectorAll('.animate-pulse-glow, .animate-wave').forEach(el => {
+            el.style.animation = 'none';
+          });
+        }
+      });
     </script>
 
+    <!-- Service Worker registration for better performance (optional) -->
     <script>
       if ('serviceWorker' in navigator && location.hostname !== 'localhost') {
         navigator.serviceWorker.register('/sw.js').catch(err => {

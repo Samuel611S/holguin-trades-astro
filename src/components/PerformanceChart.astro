@@ -11,23 +11,31 @@ const filteredData = validData
   .sort((a, b) => a.Option_Contract_Weekly_Expiration_Date_Unix_Time - b.Option_Contract_Weekly_Expiration_Date_Unix_Time)
   .slice(-12); // ✅ only the last 12 weeks
 
+// Get the stats from the total summary file
+import summaryData from '../data/sell_Put_Weekly_Summary_Total.json';
+const totalRow = summaryData.find(row => row.Option_Contract_Weekly_Expiration_Date_Unix_Time === "Total:");
+const averageRow = summaryData.find(row => row.Option_Contract_Weekly_Expiration_Date_Unix_Time === "Average:");
 
+const totalTrades = totalRow?.Total_Number_Of_Trades_Net_Of_Will_Roll || "N/A";
+const winRate = averageRow?.SuccessPercent || "N/A";
+const avgAnnualized = averageRow?.average_Annualized_Weekly_Compounded_Gain_in_Percent || "N/A";
+const spyAnnualized = averageRow?.SPY_Year_To_Date_Gain_Percent || "N/A";
 ---
 
 <div class="performance-dashboard">
   <div class="dashboard-header">
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-value" id="avgSuccess">--</div>
-        <div class="stat-label">Avg Success Rate</div>
+        <div class="stat-value">{winRate}</div>
+        <div class="stat-label">Win Rate</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="avgSpy">--</div>
-        <div class="stat-label">Avg SPY Performance</div>
+        <div class="stat-value">{spyAnnualized}</div>
+        <div class="stat-label">SPY Avg. Annualized Return</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="outperformance">--</div>
-        <div class="stat-label">Outperformance</div>
+        <div class="stat-value">{totalTrades}</div>
+        <div class="stat-label">Total Completed Trades</div>
       </div>
     </div>
   </div>

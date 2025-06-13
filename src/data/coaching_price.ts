@@ -73,10 +73,10 @@ export const coachingData: CoachingData = {
         "Insights into how lifestyle changes, not just temporary diets, lead to lasting transformation.",
       ],
       tidycalLink:
-        "https://tidycal.com/holguintrades1/15-minute-meeting",
+        "https://tidycal.com/holguintrades1/15-minute-meeting-1vlwk2z-3l696en-mpe9ezy-m8e6e56-3eg9grz-1j696qq-19k8y5y-3eg9xdz",
       stripeLink:
         "https://buy.stripe.com/14AeVe7SCbuA5dLgul9Zm04",
-        paypalLink: "https://paypal.me/holguintrades",
+        paypalLink: "https://tidycal.com/holguintrades1/15-minute-meeting-1vlwk2z-3l696en-mpe9ezy-m8e6e56-3eg9grz-1j696qq-19k8y5y-3eg9xdz-1wqvykw",
       recurrence: "One-time",
     },
     {
@@ -123,10 +123,10 @@ export const coachingData: CoachingData = {
         "Post-session notes summary and clear actions to take to improve.",
       ],
       tidycalLink:
-        "https://tidycal.com/holguintrades1/60-minute-life-session",
+        "https://tidycal.com/holguintrades1/60-minute-life-coaching-1vlwk2z-3l696en-mpe9ezy-m8e6e56-3eg9grz-1j696qq-19k8y5y-3eg9xdz-m7kqj7l",
       stripeLink:
         "https://buy.stripe.com/4gM4gA5Ku6ag49H91T9Zm08",
-        paypalLink: "https://paypal.me/holguintrades",
+        paypalLink: "https://tidycal.com/holguintrades1/60-minute-life-coaching-1vlwk2z-3l696en-mpe9ezy-m8e6e56-3eg9grz-1j696qq-19k8y5y-3eg9xdz-m7kqj7l-102jn2r",
       recurrence: "One-time",
     },
   ],
