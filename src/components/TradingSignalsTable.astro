@@ -2,47 +2,80 @@
 import { tradingServices } from '../data/service_price';
 ---
 
-<!-- Modern Trading Signals Pricing Cards -->
-<table class="min-w-full border-collapse border border-gray-700 text-left text-gray-200 rounded-xl overflow-hidden shadow-lg">
-  <thead class="bg-gray-800 text-gray-300">
-    <tr>
-      <th class="px-6 py-4 border-b border-gray-700">Service</th>
-      <th class="px-6 py-4 border-b border-gray-700">Promo Price</th>
-      <th class="px-6 py-4 border-b border-gray-700">Standard Price</th>
-      <th class="px-6 py-4 border-b border-gray-700">Discount</th>
-      <th class="px-6 py-4 border-b border-gray-700">Billing</th>
-      <th class="px-6 py-4 border-b border-gray-700">Payment</th>
-    </tr>
-  </thead>
-  <tbody class="bg-gray-900">
-    {tradingServices.map(service => {
-      const standard = parseFloat(service.price.replace('$', ''));
-      const promo = parseFloat(service.pricePromotional.replace('$', ''));
-      const discount = Math.round(((standard - promo) / standard) * 100);
+<!-- ✅ Desktop/Table View -->
+<div class="hidden md:block overflow-x-auto">
+  <table class="min-w-full border-collapse border border-gray-700 text-left text-gray-200 rounded-xl overflow-hidden shadow-lg">
+    <thead class="bg-gray-800 text-gray-300">
+      <tr>
+        <th class="px-6 py-4 border-b border-gray-700">Service</th>
+        <th class="px-6 py-4 border-b border-gray-700">Promo Price</th>
+        <th class="px-6 py-4 border-b border-gray-700">Standard Price</th>
+        <th class="px-6 py-4 border-b border-gray-700">Discount</th>
+        <th class="px-6 py-4 border-b border-gray-700">Billing</th>
+        <th class="px-6 py-4 border-b border-gray-700">Payment</th>
+      </tr>
+    </thead>
+    <tbody class="bg-gray-900">
+      {tradingServices.map(service => {
+        const standard = parseFloat(service.price.replace('$', ''));
+        const promo = parseFloat(service.pricePromotional.replace('$', ''));
+        const discount = Math.round(((standard - promo) / standard) * 100);
 
-      return (
-        <tr class="hover:bg-gray-800 transition-colors duration-200">
-          <td class="px-6 py-4 border-b border-gray-700 font-semibold text-primary-400">{service.name}</td>
-          <td class="px-6 py-4 border-b border-gray-700">{service.pricePromotional}</td>
-          <td class="px-6 py-4 border-b border-gray-700">{service.price}</td>
-          <td class="px-6 py-4 border-b border-gray-700">{discount}%</td>
-          <td class="px-6 py-4 border-b border-gray-700">{service.productBillingFrequency}</td>
-          <td class="px-6 py-4 border-b border-gray-700">
-  <div class="flex flex-wrap gap-3">
-    {service.paymentOptions.map(option => (
-      <a
-        href={option.link}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg text-sm font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow hover:shadow-cyan-500/30 transform hover:-translate-y-0.5"
-      >
-        {option.name}
-      </a>
-    ))}
-  </div>
-</td>
-        </tr>
-      );
-    })}
-  </tbody>
-</table>
+        return (
+          <tr class="hover:bg-gray-800 transition-colors duration-200">
+            <td class="px-6 py-4 border-b border-gray-700 font-semibold text-primary-400">{service.name}</td>
+            <td class="px-6 py-4 border-b border-gray-700">{service.pricePromotional}</td>
+            <td class="px-6 py-4 border-b border-gray-700">{service.price}</td>
+            <td class="px-6 py-4 border-b border-gray-700">{discount}%</td>
+            <td class="px-6 py-4 border-b border-gray-700">{service.productBillingFrequency}</td>
+            <td class="px-6 py-4 border-b border-gray-700">
+              <div class="flex flex-wrap gap-3">
+                {service.paymentOptions.map(option => (
+                  <a
+                    href={option.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg text-sm font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow hover:shadow-cyan-500/30 transform hover:-translate-y-0.5"
+                  >
+                    {option.name}
+                  </a>
+                ))}
+              </div>
+            </td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>
+
+<!-- ✅ Mobile View (Card-Based) -->
+<div class="md:hidden space-y-4">
+  {tradingServices.map(service => {
+    const standard = parseFloat(service.price.replace('$', ''));
+    const promo = parseFloat(service.pricePromotional.replace('$', ''));
+    const discount = Math.round(((standard - promo) / standard) * 100);
+
+    return (
+      <div class="border border-gray-700 rounded-lg p-4 bg-gray-900 text-gray-200 shadow-md">
+        <h3 class="text-lg font-semibold text-primary-400 mb-2">{service.name}</h3>
+        <p class="mb-1"><span class="font-medium text-gray-300">Promo:</span> {service.pricePromotional}</p>
+        <p class="mb-1"><span class="font-medium text-gray-300">Standard:</span> {service.price}</p>
+        <p class="mb-1"><span class="font-medium text-gray-300">Discount:</span> {discount}%</p>
+        <p class="mb-2"><span class="font-medium text-gray-300">Billing:</span> {service.productBillingFrequency}</p>
+        <div class="flex flex-wrap gap-3 mt-2">
+          {service.paymentOptions.map(option => (
+            <a
+              href={option.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg text-sm font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow hover:shadow-cyan-500/30 transform hover:-translate-y-0.5"
+            >
+              {option.name}
+            </a>
+          ))}
+        </div>
+      </div>
+    );
+  })}
+</div>

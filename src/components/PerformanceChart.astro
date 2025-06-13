@@ -8,7 +8,9 @@ const validData = chartData.filter(row =>
 
 // Sort by date (most recent first) and take the last 12 weeks
 const filteredData = validData
-  .sort((a, b) => a.Option_Contract_Weekly_Expiration_Date_Unix_Time - b.Option_Contract_Weekly_Expiration_Date_Unix_Time);
+  .sort((a, b) => a.Option_Contract_Weekly_Expiration_Date_Unix_Time - b.Option_Contract_Weekly_Expiration_Date_Unix_Time)
+  .slice(-12); // ✅ only the last 12 weeks
+
 
 ---
 

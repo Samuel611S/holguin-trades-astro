@@ -21,7 +21,7 @@ export const disclaimers: Disclaimer[] = [
   },
   {
     id: "important_disclosure_full",
-    name: "IMPORTANT DISCLOSURE (Full)",
+    name: "IMPORTANT DISCLOSURE",
     content:
       "All content on Holguin Trades is for informational and educational purposes only and does not constitute financial, investment, or professional advice. Trading involves substantial risk, and you could lose capital. Past performance is not indicative of future results. Always consult with a qualified financial professional before making any investment decisions.",
     display_locations: ["footer", "dedicated_page"],
