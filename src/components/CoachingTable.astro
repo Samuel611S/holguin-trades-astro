@@ -1,0 +1,93 @@
+---
+export interface MeetingType {
+  id: string;
+  name: string;
+  promotionalPrice: number;
+  standardPrice: number;
+  currency: string;
+  durationMinutes: number;
+  type: string;
+  category: string;
+  focus: string;
+  benefits: string[];
+  tidycalLink: string;
+  stripeLink?: string;
+  paypalLink?: string;
+  recurrence: string;
+}
+
+export interface Props {
+  meetingTypes: MeetingType[];
+}
+
+const { meetingTypes } = Astro.props;
+---
+
+<table class="w-full text-left table-auto border-collapse border border-gray-700 rounded-xl overflow-hidden shadow-lg">
+  <thead class="bg-gray-800 text-gray-300">
+    <tr>
+      <th class="px-6 py-4 border-b border-gray-700">Service</th>
+      <th class="px-6 py-4 border-b border-gray-700">Credit Card</th>
+      <th class="px-6 py-4 border-b border-gray-700">PayPal</th>
+      <th class="px-6 py-4 border-b border-gray-700">Standard</th>
+      <th class="px-6 py-4 border-b border-gray-700">Promo</th>
+      <th class="px-6 py-4 border-b border-gray-700">Discount</th>
+      <th class="px-6 py-4 border-b border-gray-700">Billing</th>
+    </tr>
+  </thead>
+
+  <tbody class="bg-gray-900 text-gray-200">
+    {meetingTypes.map((service) => {
+      const discount = ((service.standardPrice - service.promotionalPrice) / service.standardPrice) * 100;
+      const formattedDiscount = `${discount.toFixed(0)}%`;
+      return (
+        <tr class="hover:bg-gray-800 transition-colors duration-200">
+          <!-- 1. Service Name -->
+          <td class="px-6 py-4 border-b border-gray-700 font-semibold text-primary-400">
+            {service.name}
+          </td>
+
+          <!-- 2. Stripe Link -->
+          <td class="px-6 py-4 border-b border-gray-700">
+            {service.stripeLink ? (
+              <a
+                href={service.stripeLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-blue-400 hover:underline"
+              >
+                💳 Pay via Stripe
+              </a>
+            ) : "—"}
+          </td>
+
+          <!-- 3. PayPal Link -->
+          <td class="px-6 py-4 border-b border-gray-700">
+            {service.paypalLink ? (
+              <a
+                href={service.paypalLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-yellow-300 hover:underline"
+              >
+                Pay with PayPal
+              </a>
+            ) : "—"}
+          </td>
+
+          <!-- 4. Standard Price -->
+          <td class="px-6 py-4 border-b border-gray-700">${service.standardPrice.toFixed(2)}</td>
+
+          <!-- 5. Promo Price -->
+          <td class="px-6 py-4 border-b border-gray-700">${service.promotionalPrice.toFixed(2)}</td>
+
+          <!-- 6. Discount -->
+          <td class="px-6 py-4 border-b border-gray-700">{formattedDiscount}</td>
+
+          <!-- 7. Recurrence -->
+          <td class="px-6 py-4 border-b border-gray-700">{service.recurrence}</td>
+        </tr>
+      );
+    })}
+  </tbody>
+</table>

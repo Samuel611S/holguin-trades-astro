@@ -1,0 +1,48 @@
+holguin-trades/
+├── astro.config.mjs
+├── package.json
+├── tsconfig.json
+├── public/
+│   └── favicon.svg
+├── src/
+│   ├── components/
+│   │   ├── Header.astro
+│   │   ├── Footer.astro
+│   │   ├── StatisticsTable.astro
+│   │   ├── CoachingCard.astro
+│   │   ├── FaqItem.astro
+│   │   └── TestimonialCard.astro
+│   ├── layouts/
+│   │   ├── Layout.astro
+│   │   └── BlogPost.astro
+│   ├── pages/
+│   │   ├── index.astro
+│   │   ├── contact.astro
+│   │   ├── faqs.astro
+│   │   ├── testimonials-submit-form.astro
+│   │   ├── disclaimers/
+│   │   │   ├── index.astro
+│   │   │   └── signals.astro
+│   │   └── blog/
+│   │       ├── index.astro
+│   │       └── [slug].astro
+│   ├── content/
+│   │   ├── config.ts
+│   │   ├── blog/
+│   │   │   ├── trading-basics.md
+│   │   │   └── risk-management.md
+│   │   ├── policy/
+│   │   │   └── general-disclaimers.md
+│   │   ├── strategy/
+│   │   │   └── signals-disclaimer.md
+│   │   ├── faqs/
+│   │   │   ├── getting-started.md
+│   │   │   ├── pricing.md
+│   │   │   └── support.md
+│   │   └── testimonials/
+│   │       ├── john-doe.md
+│   │       └── jane-smith.md
+│   └── data/
+│       ├── statistics.json
+│       ├── coaching.json
+│       └── footer.json

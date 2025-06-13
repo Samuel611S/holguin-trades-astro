@@ -1,0 +1,84 @@
+---
+export interface Props {
+  question: string;
+  answer: string;
+  id: string;
+}
+
+const { question, answer, id } = Astro.props;
+---
+
+<div class="faq-item bg-gray-900 border border-gray-700 rounded-lg overflow-hidden hover:border-primary-500/40 transition-all duration-300 group">
+  <button class="faq-question w-full p-6 text-left flex justify-between items-center hover:bg-gray-800 transition-colors duration-300" data-target={id} aria-expanded="false">
+    <span class="question-text text-lg font-semibold text-white pr-4 group-hover:text-primary-400 transition-colors duration-300">{question}</span>
+    <span class="faq-icon text-primary-500 flex-shrink-0 transition-transform duration-300">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="transform transition-transform duration-300">
+        <path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </span>
+  </button>
+  <div class="faq-answer max-h-0 overflow-hidden transition-all duration-500" id={id}>
+    <div class="answer-content p-6 pt-0 text-gray-300 leading-relaxed animate-fade-in opacity-0">
+      <Fragment set:html={answer} />
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const faqButtons = document.querySelectorAll('.faq-question');
+    
+    faqButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        const answer = document.getElementById(targetId);
+        const icon = this.querySelector('.faq-icon svg');
+        const answerContent = answer?.querySelector('.answer-content');
+        const isExpanded = this.getAttribute('aria-expanded') === 'true';
+        
+        // Close all other answers
+        faqButtons.forEach(otherButton => {
+          if (otherButton !== this) {
+            const otherTargetId = otherButton.getAttribute('data-target');
+            const otherAnswer = document.getElementById(otherTargetId);
+            const otherIcon = otherButton.querySelector('.faq-icon svg');
+            const otherAnswerContent = otherAnswer?.querySelector('.answer-content');
+            
+            otherAnswer?.classList.remove('max-h-96');
+            otherAnswer?.classList.add('max-h-0');
+            otherButton.setAttribute('aria-expanded', 'false');
+            if (otherIcon) {
+              otherIcon.style.transform = 'rotate(0deg)';
+            }
+            if (otherAnswerContent) {
+              otherAnswerContent.classList.add('opacity-0');
+            }
+          }
+        });
+        
+        // Toggle this answer
+        if (isExpanded) {
+          answer?.classList.remove('max-h-96');
+          answer?.classList.add('max-h-0');
+          this.setAttribute('aria-expanded', 'false');
+          if (icon) {
+            icon.style.transform = 'rotate(0deg)';
+          }
+          if (answerContent) {
+            answerContent.classList.add('opacity-0');
+          }
+        } else {
+          answer?.classList.remove('max-h-0');
+          answer?.classList.add('max-h-96');
+          this.setAttribute('aria-expanded', 'true');
+          if (icon) {
+            icon.style.transform = 'rotate(45deg)';
+          }
+          if (answerContent) {
+            answerContent.classList.remove('opacity-0');
+          }
+        }
+      });
+    });
+  });
+</script>

@@ -1,0 +1,22 @@
+[
+  {
+    "Option_Contract_Weekly_Expiration_Date_Unix_Time": "Total:",
+    "Total_Number_Of_Trades_Number": 628,
+    "Total_Number_Of_Trades_With_Will_Roll": 92,
+    "Total_Number_Of_Trades_Net_Of_Will_Roll": 536,
+    "SuccessPercent": "3508.00%",
+    "Average_Weekly_Compounded_Gain_in_Percent": "5.50%",
+    "average_Annualized_Weekly_Compounded_Gain_in_Percent": "353.20%",
+    "SPY_Year_To_Date_Gain_Percent": "331.10%"
+  },
+  {
+    "Option_Contract_Weekly_Expiration_Date_Unix_Time": "Average:",
+    "Total_Number_Of_Trades_Number": 16.53,
+    "Total_Number_Of_Trades_With_Will_Roll": 2.42,
+    "Total_Number_Of_Trades_Net_Of_Will_Roll": 14.11,
+    "SuccessPercent": "92.30%",
+    "Average_Weekly_Compounded_Gain_in_Percent": "0.20%",
+    "average_Annualized_Weekly_Compounded_Gain_in_Percent": "13.10%",
+    "SPY_Year_To_Date_Gain_Percent": "8.70%"
+  }
+]

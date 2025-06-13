@@ -1,0 +1,133 @@
+---
+import { disclaimers } from "../data/footer";
+import { siteData } from "../data/site";
+
+const currentPath = Astro.url.pathname;
+
+const preFooterDisclaimerIds = [
+  "trading_signals_disclaimer",
+  "coaching_disclaimer",
+  "public_speaking_disclaimer"
+];
+const footerDisclaimerId = "important_disclosure_full";
+
+const preFooterDisclaimers = disclaimers.filter(d => {
+  if (!preFooterDisclaimerIds.includes(d.id)) return false;
+
+  // Show on homepage
+  if (currentPath === '/') return true;
+
+  // Show based on display_locations matching current path
+  return (
+    (d.display_locations.includes("trading_pages") && currentPath.includes("/stats")) ||
+    (d.display_locations.includes("coaching_pages") && currentPath.includes("/coaching")) ||
+    (d.display_locations.includes("speaking_pages") && currentPath.includes("/speaking"))
+  );
+});
+
+
+const footerDisclaimer = disclaimers.find(d => d.id === footerDisclaimerId);
+
+---
+<!-- Before Footer Disclaimers -->
+<section class="px-6 py-10 bg-gray-800/60 backdrop-blur-md text-gray-100 text-sm space-y-6 max-w-5xl mx-auto rounded-xl border border-gray-700">
+  {preFooterDisclaimers.map(disclaimer => (
+    <div id={disclaimer.id} key={disclaimer.id}>
+      <strong class="block text-primary-500 mb-1">{disclaimer.name}</strong>
+      <p>{disclaimer.content}</p>
+    </div>
+  ))}
+</section>
+
+<footer class="mt-16 px-6 py-10 bg-gray-800 text-gray-300 text-center">
+
+  <!-- Services & Company Links -->
+  <div class="mb-12 grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-5xl mx-auto text-left">
+    <div>
+      <h3 class="text-xl font-semibold text-primary-400 mb-4">Services</h3>
+      <ul class="space-y-2">
+        <li><a href="/disclaimers/signals" class="hover:text-primary-400 transition-colors duration-300">Trading Signals</a></li>
+        <li><a href="/#coaching" class="hover:text-primary-400 transition-colors duration-300">Coaching Programs</a></li>
+        <li><a href="/blog" class="hover:text-primary-400 transition-colors duration-300">Educational Resources</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="text-xl font-semibold text-primary-400 mb-4">Company</h3>
+      <ul class="space-y-2">
+        <li><a href="/about" class="hover:text-primary-400 transition-colors duration-300">About Us</a></li>
+        <li><a href="/faqs" class="hover:text-primary-400 transition-colors duration-300">FAQs</a></li>
+        <li><a href="/contact" class="hover:text-primary-400 transition-colors duration-300">Contact</a></li>
+        <li><a href="/disclaimers" class="hover:text-primary-400 transition-colors duration-300">Disclaimers</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Footer Disclaimers -->
+<!-- Footer Disclaimers -->
+<div class="mt-12 space-y-6 text-xs text-gray-400 text-left max-w-5xl mx-auto">
+  {footerDisclaimer && (
+    <>
+      {currentPath === '/' ? (
+        // ✅ On homepage → show full disclaimer
+        <div id="important_disclosure_full" class="border-t border-gray-600 pt-4">
+          <strong class="block text-primary-400 mb-1">{footerDisclaimer.name}</strong>
+          <p>{footerDisclaimer.content}</p>
+        </div>
+      ) : (
+        // 🔗 On other pages → show "read more..." link only
+        <div class="border-t border-gray-600 pt-4">
+          <a href="/#important_disclosure_full" class="text-primary-400 underline">
+            Read full disclosure
+          </a>
+        </div>
+      )}
+    </>
+  )}
+</div>
+
+
+  <!-- Contact Info (disabled on 2025-06-13, visible on site.ts but hidden on homepage) -->
+{/*
+<div class="mt-8 text-xs text-gray-400 max-w-5xl mx-auto text-left">
+  <p><strong>Phone:</strong> {siteData.contact.phone}</p>
+  <p><strong>Address:</strong> {siteData.contact.address}</p>
+</div>
+*/}
+
+
+  <!-- Let's Talk Form -->
+  <section class="mt-12 px-4 py-6 bg-gray-700 rounded-lg shadow-lg max-w-3xl mx-auto">
+    <h2 class="text-2xl font-semibold mb-4 text-center text-primary-400">Let's Talk</h2>
+    <form class="flex flex-col gap-4">
+      <input
+        type="email"
+        name="email"
+        placeholder="Your email address"
+        required
+        class="px-4 py-3 rounded-lg bg-gray-800 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:outline-none w-full"
+      />
+      <textarea
+        name="message"
+        placeholder="Your message"
+        rows="4"
+        required
+        class="px-4 py-3 rounded-lg bg-gray-800 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:outline-none w-full"
+      ></textarea>
+      <button
+        type="submit"
+        class="px-6 py-3 bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-600 transition-all duration-300"
+        disabled
+        title="Form processing will be added soon"
+      >
+        Let's Talk
+      </button>
+    </form>
+    <p class="mt-2 text-center text-sm text-gray-400">* Form submission will be activated in next phase.</p>
+  </section>
+
+  <!-- Copyright -->
+  <div class="mt-8 text-xs text-gray-500">
+    &copy; {new Date().getFullYear()} {siteData.siteName}. All rights reserved.
+  </div>
+
+</footer>

@@ -1,0 +1,93 @@
+---
+export interface Props {
+  name: string;
+  price: number;
+  currency: string;
+  durationMinutes: number;
+  focus: string;
+  benefits: string[];
+  tidycalLink: string;
+  popular?: boolean;
+}
+
+const { 
+  name, 
+  price, 
+  currency, 
+  durationMinutes, 
+  focus, 
+  benefits, 
+  tidycalLink, 
+  popular = false 
+} = Astro.props;
+---
+
+<div class={`flex flex-col h-full bg-gray-900/80 backdrop-blur-sm rounded-2xl border transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl ${
+  popular 
+    ? 'border-primary-500 shadow-xl shadow-primary-500/20 scale-105 animate-pulse-glow' 
+    : 'border-gray-700 hover:border-primary-500/40 hover:shadow-primary-500/10'
+}`}>
+
+  {popular && (
+    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+      <div class="bg-primary-500 text-white px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider animate-bounce-custom">
+        🦈 Most Popular
+      </div>
+    </div>
+  )}
+  
+  <div class="p-8 flex flex-col flex-grow">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h3 class="text-2xl font-bold text-white mb-3 group-hover:text-primary-400 transition-colors duration-300">
+        {name}
+      </h3>
+      <p class="text-gray-400 mb-6 leading-relaxed">
+        {focus}
+      </p>
+      <div class="flex items-baseline justify-center">
+        <span class="text-5xl font-bold text-primary-500 group-hover:scale-110 transition-transform duration-300">
+          ${price.toFixed(2)}
+        </span>
+        <span class="text-gray-400 ml-2 font-medium">
+          / {durationMinutes} min
+        </span>
+      </div>
+    </div>
+    
+    <!-- Benefits List -->
+    <div class="space-y-4 mb-8 flex-grow">
+      {benefits.map((benefit, index) => (
+        <div class="flex items-start space-x-3 group/item opacity-0 animate-slide-up" style={`animation-delay: ${index * 100 + 300}ms`}>
+          <div class="flex-shrink-0 w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center mt-0.5 group-hover/item:scale-110 transition-transform duration-300">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <span class="text-gray-300 leading-relaxed group-hover/item:text-white transition-colors duration-300">
+            {benefit}
+          </span>
+        </div>
+      ))}
+    </div>
+    
+    <!-- CTA Button -->
+    <a 
+      href={tidycalLink} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      class={`block mt-auto w-full text-center py-4 px-6 rounded-xl font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
+        popular
+          ? 'bg-primary-500 text-white hover:bg-primary-600 hover:shadow-primary-500/25'
+          : 'bg-gray-800 text-white border-2 border-primary-500/30 hover:border-primary-500 hover:bg-primary-500'
+      }`}
+    >
+      <span class="flex items-center justify-center">
+        Book Now
+        <svg class="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+        </svg>
+      </span>
+    </a>
+  </div>
+</div>

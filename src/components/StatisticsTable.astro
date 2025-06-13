@@ -1,0 +1,90 @@
+---
+import { statisticsData } from '../data/statistic';
+---
+
+<section class="py-20 bg-gray-800">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Render each service -->
+    {statisticsData.services.map((service) => (
+      <div class="mb-16">
+        <div class="text-center mb-8">
+          <h3 class="text-3xl font-bold text-cyan-400 mb-3">{service.name}</h3>
+          <p class="text-gray-300 text-lg max-w-2xl mx-auto">{service.description}</p>
+        </div>
+
+        <!-- Service statistics -->
+        {service.statistics && (
+          <div class="flex flex-wrap justify-center gap-6 mb-12">
+            {service.statistics.map((stat) => (
+              <div class="bg-gray-900/80 backdrop-blur-sm rounded-2xl p-8 border border-cyan-500/20 hover:border-cyan-500/40 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/20 w-full sm:w-80 group">
+                <div class="text-center">
+                  <div class="text-3xl lg:text-4xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text mb-4 group-hover:from-cyan-300 group-hover:to-blue-400 transition-all duration-300">
+                    {stat.value}{stat.unit}
+                  </div>
+                  <div class="text-gray-300 font-semibold text-base leading-relaxed">
+                    {stat.label}
+                  </div>
+                  {stat.period && (
+                    <div class="text-cyan-400/70 text-sm mt-2 font-medium">
+                      {stat.period}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <!-- Sub-services -->
+        {service.sub_services && service.sub_services.map((sub) => (
+          <div class="mb-12">
+            <div class="text-center mb-8">
+              <h4 class="text-2xl font-bold text-cyan-300 mb-2">{sub.name}</h4>
+            </div>
+            <div class="flex flex-wrap justify-center gap-6">
+              {sub.statistics.map((stat) => (
+                <div class="bg-gray-900/80 backdrop-blur-sm rounded-2xl p-8 border border-cyan-500/20 hover:border-cyan-500/40 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/20 w-full sm:w-80 group">
+                  <div class="text-center">
+                    <div class="text-3xl lg:text-4xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text mb-4 group-hover:from-cyan-300 group-hover:to-blue-400 transition-all duration-300">
+                      {stat.value}{stat.unit}
+                    </div>
+                    <div class="text-gray-300 font-semibold text-base leading-relaxed break-words">
+                      {stat.label}
+                    </div>
+                    {stat.period && (
+                      <div class="text-cyan-400/70 text-sm mt-2 font-medium">
+                        {stat.period}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  /* Custom scrollbar for any overflow content */
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(55, 65, 81, 0.3);
+    border-radius: 2px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(34, 197, 94, 0.5);
+    border-radius: 2px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(34, 197, 94, 0.7);
+  }
+</style>

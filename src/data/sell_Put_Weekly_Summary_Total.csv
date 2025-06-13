@@ -1,0 +1,5 @@
+﻿Option_Contract_Weekly_Expiration_Date_Unix_Time,Option_contract_Type_string,Total_Number_Of_Trades_Number,Total_Number_Of_Trades_With_Will_Roll,Total_Number_Of_Trades_Net_Of_Will_Roll,SuccessPercent,Average_Weekly_Compounded_Gain_in_Percent,average_Annualized_Weekly_Compounded_Gain_in_Percent,SPY_Year_To_Date_Gain_Percent
+Total:,,628,92,536,3508.00%,5.50%,353.20%,331.10%
+Average:,,16.52631579,2.421052632,14.10526316,92.30%,0.20%,13.10%,8.70%
+Low:,,5,0,4,30.00%,-0.60%,-25.80%,-14.30%
+Max:,,24,9,21,100.00%,1.20%,86.30%,28.70%

@@ -1,0 +1,553 @@
+---
+import chartData from '../data/sell_Put_Weekly_Summary_Per_Week.json';
+
+// Filter data on the server side - get only the past 12 weeks
+const validData = chartData.filter(row => 
+  row.Option_Contract_Weekly_Expiration_Date_Unix_Time && row.SuccessPercent
+);
+
+// Sort by date (most recent first) and take the last 12 weeks
+const filteredData = validData
+  .sort((a, b) => a.Option_Contract_Weekly_Expiration_Date_Unix_Time - b.Option_Contract_Weekly_Expiration_Date_Unix_Time);
+
+---
+
+<div class="performance-dashboard">
+  <div class="dashboard-header">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="avgSuccess">--</div>
+        <div class="stat-label">Avg Success Rate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="avgSpy">--</div>
+        <div class="stat-label">Avg SPY Performance</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="outperformance">--</div>
+        <div class="stat-label">Outperformance</div>
+      </div>
+    </div>
+  </div>
+  <div class="chart-container">
+    <canvas id="performanceChart" width="800" height="400" style="display: block; width: 100%; height: 400px;"></canvas>
+  </div>
+</div>
+
+<!-- Embed filtered data in a script tag -->
+<script type="application/json" id="chart-data" set:html={JSON.stringify(filteredData)}></script>
+
+<!-- TypeScript Chart Implementation -->
+<script>
+  // Extend window to allow custom property
+declare global {
+  interface Window {
+    graphHasError: boolean;
+  }
+}
+window.graphHasError = false;
+
+// Type definitions
+interface RawDataRow {
+  Option_Contract_Weekly_Expiration_Date_Unix_Time: number;
+  SuccessPercent: string;
+  SPY_Year_To_Date_Gain_Percent: string;
+}
+
+interface ChartDataPoint {
+  week: string;
+  sellPut: number;
+  spy: number;
+}
+
+// Get the data injected from Astro
+const chartDataElement = document.getElementById('chart-data');
+if (!chartDataElement || !chartDataElement.textContent) {
+  throw new Error('Chart data element not found or empty');
+}
+
+let rawData: RawDataRow[] = [];
+
+try {
+  const chartDataElement = document.getElementById('chart-data');
+  if (!chartDataElement || !chartDataElement.textContent) {
+    throw new Error('Chart data element not found or empty');
+  }
+
+  rawData = JSON.parse(chartDataElement.textContent);
+
+  // ✅ Check 6: First row fields exist
+  const first = rawData[0];
+  if (!first?.SPY_Year_To_Date_Gain_Percent || !first?.SuccessPercent) {
+    throw new Error('Missing SPY or SuccessPercent in FIRST row');
+  }
+
+  // ✅ Check 7: Last row fields exist
+  const last = rawData[rawData.length - 1];
+  if (!last?.SPY_Year_To_Date_Gain_Percent || !last?.SuccessPercent) {
+    throw new Error('Missing SPY or SuccessPercent in LAST row');
+  }
+
+  // ✅ Check 8: Middle row fields exist
+  for (let i = 1; i < rawData.length - 1; i++) {
+    const row = rawData[i];
+    if (!row?.SPY_Year_To_Date_Gain_Percent || !row?.SuccessPercent) {
+      throw new Error(`Missing SPY or SuccessPercent in middle row ${i}`);
+    }
+  }
+
+} catch (error) {
+  console.error('[GRAPH ERROR]', error.message);
+  window.graphHasError = true;
+
+  const chart = document.querySelector('.chart-container');
+  if (chart) chart.remove();
+
+  const stats = document.querySelector('.performance-dashboard');
+  if (stats) stats.remove();
+
+  throw new Error('Invalid graph data. Aborting rendering.');
+}
+
+
+function unixToDate(unixTime: number): string {
+  const date = new Date(unixTime * 1000);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function parsePercent(str: string | number): number {
+  if (typeof str === 'string') {
+    return parseFloat(str.replace('%', ''));
+  }
+  return parseFloat(String(str)) || 0;
+}
+
+// Convert your real data into { week, sellPut, spy }
+const chartData: ChartDataPoint[] = rawData.map((row: RawDataRow, index: number): ChartDataPoint => {
+  return {
+    week: unixToDate(row.Option_Contract_Weekly_Expiration_Date_Unix_Time),
+    sellPut: parsePercent(row.SuccessPercent),
+    spy: parsePercent(row.SPY_Year_To_Date_Gain_Percent)
+  };
+});
+
+// Calculate stats for dashboard
+const ourSuccess: number[] = chartData.map(d => d.sellPut);
+const spySuccess: number[] = chartData.map(d => d.spy);
+
+const avgSuccess: number = ourSuccess.reduce((a, b) => a + b, 0) / ourSuccess.length;
+const avgSpy: number = spySuccess.reduce((a, b) => a + b, 0) / spySuccess.length;
+const outperformance: number = avgSuccess - avgSpy;
+
+// Update stat cards
+const avgSuccessEl = document.getElementById('avgSuccess');
+const avgSpyEl = document.getElementById('avgSpy');
+const outperformanceEl = document.getElementById('outperformance');
+
+if (avgSuccessEl) avgSuccessEl.textContent = avgSuccess.toFixed(1) + '%';
+if (avgSpyEl) avgSpyEl.textContent = avgSpy.toFixed(1) + '%';
+if (outperformanceEl) {
+  outperformanceEl.textContent = (outperformance >= 0 ? '+' : '') + outperformance.toFixed(1) + '%';
+  outperformanceEl.style.color = outperformance >= 0 ? '#10B981' : '#EF4444';
+}
+
+// Global variables for interaction
+let hoveredIndex: number = -1;
+let tooltip: HTMLDivElement | null = null;
+
+function createTooltip(): HTMLDivElement {
+  if (tooltip) return tooltip;
+  
+  tooltip = document.createElement('div');
+  tooltip.style.position = 'absolute';
+  tooltip.style.background = 'rgba(17, 24, 39, 0.95)';
+  tooltip.style.color = '#F9FAFB';
+  tooltip.style.padding = '8px 12px';
+  tooltip.style.borderRadius = '8px';
+  tooltip.style.fontSize = '12px';
+  tooltip.style.pointerEvents = 'none';
+  tooltip.style.opacity = '0';
+  tooltip.style.transition = 'opacity 0.2s ease';
+  tooltip.style.zIndex = '1000';
+  tooltip.style.border = '1px solid rgba(75, 85, 99, 0.5)';
+  tooltip.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+  document.body.appendChild(tooltip);
+  return tooltip;
+}
+
+function drawStraightLine(ctx, points) {
+  if (points.length < 2) return;
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  for (let i = 1; i < points.length; i++) {
+    ctx.lineTo(points[i].x, points[i].y);
+  }
+}
+
+
+function createChart(radiusMultiplier = 1): void {
+  const canvas = document.getElementById('performanceChart') as HTMLCanvasElement | null;
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  // High DPI support
+  const rect: DOMRect = canvas.getBoundingClientRect();
+  const dpr: number = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+
+  // Dimensions
+  const padding: number = 60;
+  const chartWidth: number = rect.width - padding * 2;
+  const chartHeight: number = rect.height - padding * 2;
+
+  // Scaling
+  const allValues: number[] = chartData.flatMap((d: ChartDataPoint) => [d.sellPut, d.spy]);
+  const minValue: number = Math.min(...allValues) - 0.5;
+  const maxValue: number = Math.max(...allValues) + 0.5;
+
+  const getX = (index: number): number => padding + (index * chartWidth) / (chartData.length - 1);
+  const getY = (value: number): number => padding + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
+
+  // Clear with dark background
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.3)';
+  ctx.fillRect(0, 0, rect.width, rect.height);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(75, 85, 99, 0.2)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+
+  for (let i = 0; i <= 5; i++) {
+    const y: number = padding + (i * chartHeight) / 5;
+    ctx.beginPath();
+    ctx.moveTo(padding, y);
+    ctx.lineTo(padding + chartWidth, y);
+    ctx.stroke();
+  }
+
+  for (let i = 0; i < chartData.length; i++) {
+    const x: number = getX(i);
+    ctx.beginPath();
+    ctx.moveTo(x, padding);
+    ctx.lineTo(x, padding + chartHeight);
+    ctx.stroke();
+  }
+
+  ctx.setLineDash([]);
+
+  // Prepare points for smooth curves
+  const strategyPoints = chartData.map((point, index) => ({
+    x: getX(index),
+    y: getY(point.sellPut)
+  }));
+  
+  const spyPoints = chartData.map((point, index) => ({
+    x: getX(index),
+    y: getY(point.spy)
+  }));
+
+  // Draw filled areas under curves
+  // Strategy fill
+  ctx.fillStyle = 'rgba(6, 182, 212, 0.1)';
+  ctx.beginPath();
+  ctx.moveTo(strategyPoints[0].x, padding + chartHeight);
+  drawStraightLine(ctx, strategyPoints);
+  ctx.lineTo(strategyPoints[strategyPoints.length - 1].x, padding + chartHeight);
+  ctx.closePath();
+  ctx.fill();
+
+  // SPY fill
+  ctx.fillStyle = 'rgba(245, 158, 11, 0.1)';
+  ctx.beginPath();
+  ctx.moveTo(spyPoints[0].x, padding + chartHeight);
+  drawStraightLine(ctx, spyPoints);
+
+  ctx.lineTo(spyPoints[spyPoints.length - 1].x, padding + chartHeight);
+  ctx.closePath();
+  ctx.fill();
+
+  // Our Strategy smooth line
+  ctx.strokeStyle = '#06B6D4';
+  ctx.lineWidth = 3;
+  drawStraightLine(ctx, strategyPoints);
+  ctx.stroke();
+
+  // SPY smooth line
+  ctx.strokeStyle = '#F59E0B';
+  ctx.lineWidth = 3;
+  drawStraightLine(ctx, spyPoints);
+
+  ctx.stroke();
+
+  // Draw points
+  chartData.forEach((point: ChartDataPoint, index: number) => {
+    const x: number = getX(index);
+    const isHovered = index === hoveredIndex;
+    
+    // Our Strategy dots
+    ctx.shadowColor = 'rgba(6, 182, 212, 0.5)';
+    ctx.shadowBlur = 8;
+    const yStrategy: number = getY(point.sellPut);
+    ctx.fillStyle = '#06B6D4';
+    ctx.beginPath();
+    ctx.arc(x, yStrategy, isHovered ? 6 : 4 * radiusMultiplier, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+
+
+    // SPY dots
+    ctx.shadowColor = 'rgba(6, 182, 212, 0.5)';
+    ctx.shadowBlur = 8;
+    const ySpy: number = getY(point.spy);
+    ctx.fillStyle = '#F59E0B';
+    ctx.beginPath();
+    ctx.arc(x, ySpy, isHovered ? 6 : 4 * radiusMultiplier, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+
+  });
+
+  // Axes
+  ctx.strokeStyle = '#9CA3AF';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padding, padding);
+  ctx.lineTo(padding, padding + chartHeight);
+  ctx.moveTo(padding, padding + chartHeight);
+  ctx.lineTo(padding + chartWidth, padding + chartHeight);
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#9CA3AF';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+
+  chartData.forEach((point: ChartDataPoint, index: number) => {
+    if (index % 2 === 0 || chartData.length <= 6) {
+      const x: number = getX(index);
+      ctx.fillText(point.week, x, padding + chartHeight + 20);
+    }
+  });
+
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 5; i++) {
+    const value: number = minValue + (i * (maxValue - minValue)) / 5;
+    const y: number = padding + chartHeight - (i * chartHeight) / 5;
+    ctx.fillText(value.toFixed(1) + '%', padding - 10, y + 4);
+  }
+
+  // Legend
+  ctx.textAlign = 'left';
+  // Legend repositioned to top-left (outside data zone)
+const legendX = padding + 10;
+const legendY = padding - 30;
+
+ctx.font = '13px sans-serif';
+ctx.textAlign = 'left';
+
+// Our Strategy (Blue)
+ctx.fillStyle = '#06B6D4';
+ctx.fillRect(legendX, legendY, 15, 3);
+ctx.fillStyle = '#E5E7EB';
+ctx.fillText('Our Strategy', legendX + 20, legendY + 3);
+
+// SPY Benchmark (Yellow)
+ctx.fillStyle = '#F59E0B';
+ctx.fillRect(legendX, legendY + 20, 15, 3);
+ctx.fillStyle = '#E5E7EB';
+ctx.fillText('SPY Benchmark', legendX + 20, legendY + 23);
+
+
+  // Add mouse event listeners
+  const handleMouseMove = (e: MouseEvent) => {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    let newHoveredIndex = -1;
+    let minDistance = Infinity;
+    
+    chartData.forEach((point, index) => {
+      const x = getX(index);
+      const yStrategy = getY(point.sellPut);
+      const ySpy = getY(point.spy);
+      
+      const distanceStrategy = Math.sqrt((mouseX - x) ** 2 + (mouseY - yStrategy) ** 2);
+      const distanceSpy = Math.sqrt((mouseX - x) ** 2 + (mouseY - ySpy) ** 2);
+      const minDist = Math.min(distanceStrategy, distanceSpy);
+      
+      if (minDist < 20 && minDist < minDistance) {
+        minDistance = minDist;
+        newHoveredIndex = index;
+      }
+    });
+    
+    if (newHoveredIndex !== hoveredIndex) {
+      hoveredIndex = newHoveredIndex;
+      createChart(); // Redraw chart
+      
+      if (hoveredIndex >= 0) {
+        const tooltip = createTooltip();
+        const point = chartData[hoveredIndex];
+        tooltip.innerHTML = `
+          <div style="font-weight: 600; margin-bottom: 4px;">Week of ${point.week}</div>
+          <div style="color: #06B6D4;">● Our Strategy: ${point.sellPut.toFixed(1)}%</div>
+          <div style="color: #F59E0B;">● SPY Benchmark: ${point.spy.toFixed(1)}%</div>
+        `;
+        tooltip.style.left = (e.clientX + 10) + 'px';
+        tooltip.style.top = (e.clientY - 10) + 'px';
+        tooltip.style.opacity = '1';
+      } else {
+        const tooltip = createTooltip();
+        tooltip.style.opacity = '0';
+      }
+    }
+  };
+  
+  const handleMouseLeave = () => {
+    hoveredIndex = -1;
+    createChart();
+    if (tooltip) {
+      tooltip.style.opacity = '0';
+    }
+  };
+  
+  canvas.addEventListener('mousemove', handleMouseMove);
+  canvas.addEventListener('mouseleave', handleMouseLeave);
+}
+
+// Run on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    createChart();
+  }, 200); // ← Wait 200ms before drawing chart
+});
+
+
+
+
+window.addEventListener('resize', (): void => {
+  setTimeout(createChart, 100);
+});
+</script>
+
+<style>
+  .performance-dashboard {
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(51, 65, 85, 0.3);
+  }
+
+  .dashboard-header {
+    margin-bottom: 2rem;
+  }
+
+  .dashboard-title {
+    color: #F8FAFC;
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+    background: linear-gradient(135deg, #06B6D4, #3B82F6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-card {
+    background: rgba(30, 41, 59, 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(51, 65, 85, 0.3);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #F8FAFC;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: #94A3B8;
+    font-weight: 500;
+  }
+
+  .chart-container {
+    height: 400px;
+    background: rgba(15, 23, 42, 0.3);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(51, 65, 85, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chart-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  #performanceChart {
+    position: relative;
+    z-index: 1;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  @media (max-width: 768px) {
+    .performance-dashboard {
+      padding: 1.5rem;
+    }
+    
+    .dashboard-title {
+      font-size: 1.5rem;
+    }
+    
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .chart-container {
+      height: 300px;
+      padding: 1rem;
+    }
+  }
+</style>

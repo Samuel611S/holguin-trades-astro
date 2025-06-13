@@ -1,0 +1,26 @@
+---
+import type { Testimonial } from '../data/types';
+
+// Props
+export interface Props {
+  testimonial: Pick<Testimonial, 'testimonial' | 'name' | 'service' | 'rating'>;
+}
+
+const { testimonial } = Astro.props;
+const { testimonial: message, name, service, rating } = testimonial;
+---
+
+<div class="bg-gray-900/80 backdrop-blur-sm border border-primary-500/20 rounded-xl p-6 text-left shadow-lg hover:shadow-primary-500/20 transition duration-300">
+  <p class="text-gray-300 text-lg mb-4">“{message}”</p>
+  
+  <div class="flex items-center justify-between mt-4">
+    <div>
+      <p class="text-white font-semibold">{name}</p>
+      <p class="text-primary-400 text-sm">{service}</p>
+    </div>
+
+    <div class="text-yellow-400 text-sm">
+      {rating ? `${rating}/5 Stars ⭐` : 'No rating'}
+    </div>
+  </div>
+</div>
