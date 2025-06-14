@@ -19,7 +19,7 @@ export const tradingServices = [
     productBillingFrequency: "Monthly",
     moreInfo: {
       text: "Learn More…",
-      link: "http://holguintrades.com/trades.html"
+      link: "https://tidycal.com/holguintrades1/15-minute-speaking-meeting-1vlwk2z-3l696en-mpe9ezy-m8e6e56-3eg9grz-1j696qq-19k8y5y"
     },
     testimonials: [],
     benefitList: [
