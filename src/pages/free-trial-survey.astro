@@ -8,28 +8,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Holguin Trades Survey - Extended Free Trial</title>
     <link rel="stylesheet" href="/styles/global.css" />
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   </head>
-  
 <body class="bg-gray-900 text-white min-h-screen font-sans antialiased">
-    <section class="py-12">
-      <div class="max-w-3xl mx-auto px-4">
-        <!-- Header -->
-        <div class="bg-gray-800 rounded-lg shadow-lg p-8 mb-6 border border-gray-700">
-          <h1 class="text-3xl font-bold mb-4">Holguin Trades Survey</h1>
-          <div class="bg-primary-950 border border-primary-700 rounded-md p-4 mb-6">
-            <p class="text-primary-300 font-semibold">🎉 Unlock an additional 14-day free trial!</p>
-            <p class="text-primary-200 mt-2">It only takes 3 minutes. Your trial begins immediately upon submission.</p>
-          </div>
-          <!-- Progress Bar -->
-          <div class="bg-gray-700 rounded-full h-3 mb-4">
-            <div id="progress-bar" class="bg-primary-500 h-3 rounded-full transition-all duration-300" style="width: 33%"></div>
-          </div>
-          <p id="progress-text" class="text-sm text-gray-400 mb-4">Page 1 of 3</p>
+  <section class="py-12">
+    <div class="max-w-3xl mx-auto px-4">
+      <!-- Header -->
+      <div class="bg-gray-800 rounded-lg shadow-lg p-8 mb-6 border border-gray-700">
+        <h1 class="text-3xl font-bold mb-4">Holguin Trades Survey</h1>
+        <div class="bg-primary-950 border border-primary-700 rounded-md p-4 mb-6">
+          <p class="text-primary-300 font-semibold">🎉 Unlock an additional 14-day free trial!</p>
+          <p class="text-primary-200 mt-2">It only takes 3 minutes. Your trial begins immediately upon submission.</p>
         </div>
+        <!-- Progress Bar -->
+        <div class="bg-gray-700 rounded-full h-3 mb-4">
+          <div id="progress-bar" class="bg-primary-500 h-3 rounded-full transition-all duration-300" style="width: 33%"></div>
+        </div>
+        <p id="progress-text" class="text-sm text-gray-400 mb-4">33% completed</p>
+      </div>
 
-        <!-- Survey Form -->
-        <form id="surveyForm" class="space-y-6" onsubmit="return validateAllRequiredFields()">
-            
+      <!-- Survey Form -->
+      <form id="surveyForm" class="space-y-6" onsubmit="return validateAllRequiredFields()">
+            <input type="hidden" name="formType" value="survey" />
+            <input type="hidden" name="trackingData" id="trackingData" />
+
             <!-- Page 1 -->
           <div id="page-1" class="survey-page bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-8">
                 
@@ -243,8 +245,8 @@
             </div>
 
             <!-- Page 3 -->
-            <div id="page-3" class="survey-page bg-gray-800 border border-gray-700
- rounded-lg shadow-lg p-8 hidden">
+            <!-- CAPTCHA + Submit button (inside page-3 only) -->
+        <div id="page-3" class="survey-page bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-8 hidden">
                 
                 <!-- Question 9: Portfolio Value -->
                 <div class="question mb-8">
@@ -453,9 +455,11 @@
                     <button type="button" onclick="goToPage(2)" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded mb-4">
                         Previous
                         </button>
-
                 </div>
-
+                <p class="text-sm text-gray-400 mt-6 mb-2">Please verify you are human before submitting:</p>
+                <div class="mt-6">
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAABd9WX40ycLOMMtB" data-theme="dark"></div>
+          </div>
                 <!-- Submit -->
                 <div class="mt-8">
                     <button type="submit" class="btn-submit bg-primary-600 text-white py-3 px-6 rounded-md w-full hover:bg-primary-700 transition">
@@ -466,25 +470,56 @@
         </form>
     </div>
     <script>
-  window.goToPage = function (pageNum) {
-    const pages = document.querySelectorAll('.survey-page');
-    pages.forEach((p) => p.classList.add('hidden'));
-
-    const targetPage = document.getElementById(`page-${pageNum}`);
-    if (targetPage) targetPage.classList.remove('hidden');
-
-    const progressBar = document.getElementById('progress-bar');
-    const progressText = document.getElementById('progress-text');
-
-    const percent = (pageNum / pages.length) * 100;
-    progressBar.style.width = percent + '%';
-    progressText.textContent = `Page ${pageNum} of ${pages.length}`;
-  };
-
-  document.addEventListener('DOMContentLoaded', () => {
-    window.goToPage(1);
+        document.addEventListener('DOMContentLoaded', () => {
+    const trackingInfo = {
+      userId: localStorage.getItem('_my_anon_id') || '',
+      sessionId: '', // captured in backend via cookies
+      referrer: document.referrer,
+      currentUrl: window.location.href
+    };
+    const trackingField = document.getElementById('trackingData');
+    if (trackingField) trackingField.value = JSON.stringify(trackingInfo);
   });
-  
-</script>
+      window.goToPage = function (pageNum) {
+        const pages = document.querySelectorAll('.survey-page');
+        pages.forEach((p) => p.classList.add('hidden'));
+
+        const targetPage = document.getElementById(`page-${pageNum}`);
+        if (targetPage) targetPage.classList.remove('hidden');
+
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+
+        const percent = (pageNum / pages.length) * 100;
+        progressBar.style.width = percent + '%';
+        progressText.textContent = `${percent.toFixed(0)}% completed`;
+      };
+
+      function validateAllRequiredFields() {
+        const form = document.getElementById('surveyForm');
+        const requiredFields = form.querySelectorAll('[required]');
+        for (const field of requiredFields) {
+          if (field.type === 'radio') {
+            const group = form.querySelectorAll(`input[name="${field.name}"]`);
+            const isChecked = Array.from(group).some(r => r.checked);
+            if (!isChecked) {
+              group[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+              group[0].focus();
+              return false;
+            }
+          } else if (!field.value) {
+            field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            field.focus();
+            return false;
+          }
+        }
+        form.querySelector('button[type="submit"]').disabled = true;
+        return true;
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        window.goToPage(1);
+      });
+    </script>
 </body>
 </html>
