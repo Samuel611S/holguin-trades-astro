@@ -69,7 +69,7 @@ const footerDisclaimer = disclaimers.find(d => d.id === footerDisclaimerId);
     <>
       {currentPath === '/' ? (
         // ✅ On homepage → show full disclaimer
-        <div id="important_disclosure_full" class="border-t border-gray-600 pt-4">
+          <div id="important_disclosure_full" class="relative z-10 border-t border-gray-600 pt-4 bg-gray-800/90 backdrop-blur-0">
           <strong class="block text-primary-400 mb-1">{footerDisclaimer.name}</strong>
           <p>{footerDisclaimer.content}</p>
         </div>

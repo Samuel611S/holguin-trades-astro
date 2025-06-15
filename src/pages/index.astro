@@ -226,7 +226,7 @@ const featuredPosts = allBlogPosts
 </section>
 
 
-  <!-- Trading Signals Pricing Section
+  <!-- Trading Signals Pricing Section -->
 <section id="trading-signals" class="py-20 bg-gray-800/50 backdrop-blur-sm">
   
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -251,10 +251,10 @@ const featuredPosts = allBlogPosts
 </div>
     
   </div>
-</section>  -->
+</section> 
   <div class="border-t border-gray-600 my-0"></div>
 
-<section class="py-20 bg-gradient-to-r from-primary-600/20 via-gray-900 to-primary-600/20 text-gray-100">
+<section class="relative z-10 py-20 bg-gradient-to-r from-primary-600/20 via-gray-900 to-primary-600/20 text-gray-100">
   <div class="max-w-5xl mx-auto px-6 text-center">
     <h2 class="text-4xl lg:text-5xl font-extrabold text-white mb-8 leading-tight">
       Why Choose Me as Your Coach for <span class="text-primary-400">Trading and Life Success</span>?
@@ -308,7 +308,7 @@ const featuredPosts = allBlogPosts
 </section>
 
   <!-- Coaching Programs Section (TABLE as per Alfredo's latest request) -->
-  <!-- <section id="coaching" class="py-20 relative">
+   <section id="coaching" class="py-20 relative overflow-hidden">
     <div class="absolute inset-0 z-0">
       <div class="absolute top-0 left-0 w-64 h-64 bg-primary-500/5 rounded-full blur-3xl"></div>
       <div class="absolute bottom-0 right-0 w-96 h-96 bg-primary-500/5 rounded-full blur-3xl"></div>
@@ -336,8 +336,8 @@ const featuredPosts = allBlogPosts
 
       <CoachingTable meetingTypes={coachingData.meetingTypes} />
     </div>
-  </section>
-  <section id="speaking-events" class="py-20 bg-gradient-to-r from-primary-500/20 via-gray-900 to-primary-500/20 text-gray-100">
+  </section> 
+<section id="speaking-events" class="relative z-10 py-20 bg-gradient-to-r from-primary-500/20 via-gray-900 to-primary-500/20 text-gray-100">
   <div class="max-w-6xl mx-auto px-6 text-center">
 
     <h2 class="text-4xl lg:text-5xl font-extrabold text-white mb-10 leading-tight">
@@ -406,7 +406,7 @@ const featuredPosts = allBlogPosts
     </p>
 
   </div>
-</section> -->
+</section>
 <!-- <section id="free-trial" class="py-20 bg-gray-800/50 backdrop-blur-sm">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-16 reveal-on-scroll opacity-0" data-animation="animate-slide-up">
@@ -455,14 +455,12 @@ const featuredPosts = allBlogPosts
     video.addEventListener('dblclick', () => {
       if (!isExpanded) {
         wrapper.classList.add('popup-video', 'fade-in');
-        wrapper.classList.remove('fade-out');
-        document.body.classList.add('overflow-hidden');
-      } else {
+        wrapper.classList.remove('fade-out');} 
+        else {
         wrapper.classList.add('fade-out');
         wrapper.classList.remove('fade-in');
         setTimeout(() => {
           wrapper.classList.remove('popup-video', 'fade-out');
-          document.body.classList.remove('overflow-hidden');
         }, 300);
       }
 
@@ -490,20 +488,22 @@ const featuredPosts = allBlogPosts
     animation: fadeOut 0.3s ease-in-out forwards;
   }
 
-  .popup-video {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 80vw !important;
-    max-width: 960px !important;
-    aspect-ratio: 16 / 9;
-    background-color: black;
-    z-index: 9999;
-    border-radius: 1rem;
-    overflow: hidden;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.6);
-  }
+  /* Remove this entirely if you don't want full overlay */
+.popup-video {
+  /* REMOVE these lines below to avoid covering the page */
+  position: relative !important;   /* instead of fixed */
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  width: 100% !important;
+  max-width: 960px !important;
+  aspect-ratio: 16 / 9;
+  background-color: black;
+  z-index: 1; /* Lower so it doesn't overlay the whole page */
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.6);
+}
 
   .popup-video video {
     width: 100% !important;

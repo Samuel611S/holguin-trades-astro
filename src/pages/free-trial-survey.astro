@@ -1,0 +1,490 @@
+---
+// src/pages/free-trial-survey.astro
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Holguin Trades Survey - Extended Free Trial</title>
+    <link rel="stylesheet" href="/styles/global.css" />
+  </head>
+  
+<body class="bg-gray-900 text-white min-h-screen font-sans antialiased">
+    <section class="py-12">
+      <div class="max-w-3xl mx-auto px-4">
+        <!-- Header -->
+        <div class="bg-gray-800 rounded-lg shadow-lg p-8 mb-6 border border-gray-700">
+          <h1 class="text-3xl font-bold mb-4">Holguin Trades Survey</h1>
+          <div class="bg-primary-950 border border-primary-700 rounded-md p-4 mb-6">
+            <p class="text-primary-300 font-semibold">🎉 Unlock an additional 14-day free trial!</p>
+            <p class="text-primary-200 mt-2">It only takes 3 minutes. Your trial begins immediately upon submission.</p>
+          </div>
+          <!-- Progress Bar -->
+          <div class="bg-gray-700 rounded-full h-3 mb-4">
+            <div id="progress-bar" class="bg-primary-500 h-3 rounded-full transition-all duration-300" style="width: 33%"></div>
+          </div>
+          <p id="progress-text" class="text-sm text-gray-400 mb-4">Page 1 of 3</p>
+        </div>
+
+        <!-- Survey Form -->
+        <form id="surveyForm" class="space-y-6" onsubmit="return validateAllRequiredFields()">
+            
+            <!-- Page 1 -->
+          <div id="page-1" class="survey-page bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-8">
+                
+                <!-- Question 1: Trading Experience -->
+                <div class="question mb-8">
+              <label class="block text-lg font-semibold mb-4">
+                        1. What is your primary level of trading experience?
+                    </label>
+                    <div class="space-y-3">
+                            <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="trading_experience" value="Beginner" required class="mt-1 h-4 w-4 text-primary-500 border-gray-600 bg-gray-900" />
+                            <span class="text-gray-300">Beginner (New to trading)</span>
+                            </label>
+                            <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="trading_experience" value="Novice" required class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Novice (Some basic experience, still learning the ropes)</span>
+                        </label>
+                            <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="trading_experience" value="Intermediate" required class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Intermediate (Comfortable with basic concepts, actively trading)</span>
+                        </label>
+                            <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="trading_experience" value="Advanced" required class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Advanced (Highly experienced, consistently trading or managing portfolios)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question 2: Service Interest -->
+                <div class="question mb-8">
+              <label class="block text-lg font-semibold mb-4">
+                        2. Based on what you've seen/experienced so far, which of our services interests you most?
+                    </label>
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="service_interest" value="AI-powered Trading Signals" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">AI-powered Trading Signals</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="service_interest" value="1-on-1 Trading Coaching" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">1-on-1 Trading Coaching</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="service_interest" value="Group Trading Coaching" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Group Trading Coaching</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="service_interest" value="1-on-1 Life Coaching" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">1-on-1 Life Coaching</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="service_interest" value="Group Life Coaching" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Group Life Coaching</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="service_interest" value="Public/Motivational Speaking" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Public/Motivational Speaking (for my organization/event)</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="service_interest" value="Interested in all services" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">I'm interested in learning more about all of your services.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question 3: Conversion Factors -->
+                <div class="question mb-8">
+              <label class="block text-lg font-semibold mb-4">
+                        3. What would make you most likely to convert from a free trial to a paid subscriber for our trading signals?
+                    </label>
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="conversion_factor" value="Consistent profitability of alerts" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Consistent profitability of alerts</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="conversion_factor" value="More in-depth educational content" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">More in-depth educational content on how to use signals</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="conversion_factor" value="Access to a supportive community" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Access to a supportive community of traders</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="conversion_factor" value="Lower price point" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">A lower price point</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="conversion_factor" value="More personalized support" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">More personalized support or guidance</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="conversion_factor" value="Integration with my trading platform" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Integration with my preferred trading platform</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="conversion_factor" value="Clearer risk management guidelines" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Clearer risk management guidelines</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="conversion_factor" value="Other" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Other (Please specify):</span>
+                        </label>
+                        <input type="text" name="conversion_factor_other" maxlength="100" placeholder="e.g., more frequent webinars" class="w-full mt-2 px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+
+                <!-- Question 4: Website Feedback -->
+                <div class="question mb-8">
+              <label class="block text-lg font-semibold mb-4">
+                        4. What was the most confusing or unclear aspect of our website? (Optional)
+                    </label>
+                    <textarea name="website_confusing" maxlength="500" rows="4" class="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500" placeholder="Please share any feedback about our website..."></textarea>
+                </div>
+                <div class="flex justify-end">
+                <button type="button" onclick="goToPage(2)" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded">
+                    Next
+                </button>
+                </div>
+
+            </div>
+
+            <!-- Page 2 -->
+            <div id="page-2" class="survey-page bg-gray-800 border border-gray-700
+ rounded-lg shadow-lg p-8 hidden">
+                
+                <!-- Question 5: Trading Tools -->
+                <div class="question mb-8">
+              <label class="block text-lg font-semibold mb-4">
+                        5. Beyond text alerts, what other types of information or tools would be most helpful for your trading decisions?
+                    </label>
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="trading_tools" value="Video explanations of trade setups" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Video explanations of trade setups</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="trading_tools" value="Live Q&A sessions with the coach/analyst" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Live Q&A sessions with the coach/analyst</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="trading_tools" value="Detailed market analysis reports" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Detailed market analysis reports (e.g., daily/weekly outlooks)</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="trading_tools" value="A private community forum or chat group" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">A private community forum or chat group</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="trading_tools" value="Real-time financial news updates" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Real-time financial news updates</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="trading_tools" value="Access to advanced charting tools" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Access to advanced charting tools</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="trading_tools" value="One-on-one strategy sessions" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">One-on-one strategy sessions</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="checkbox" name="trading_tools" value="Other" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded">
+                            <span class="text-gray-300">Other (Please specify):</span>
+                        </label>
+                        <input type="text" name="trading_tools_other" maxlength="100" placeholder="e.g., trading journal template" class="w-full mt-2 px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+
+                <!-- Question 6: Biggest Challenge -->
+                <div class="question mb-8">
+              <label class="block text-lg font-semibold mb-4">
+                        6. Thinking about your overall financial or personal growth, what is your biggest challenge right now that you wish you had more support with? (Optional)
+                    </label>
+                    <textarea name="biggest_challenge" maxlength="500" rows="4" class="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500" placeholder="Share your biggest challenge..."></textarea>
+                </div>
+
+                <!-- Contact Info Header -->
+                <div class="bg-primary-50 border border-primary-200 rounded-md p-4 mb-6">
+                    <p class="text-primary-800 font-semibold">Great! You're almost done.</p>
+                    <p class="text-primary-700 mt-1">Please provide your contact details below so we can activate your additional 14-day free trial immediately.</p>
+                </div>
+
+                <!-- Question 7: Email -->
+                <div class="question mb-8">
+              <label class="block text-lg font-semibold mb-4">
+                        7. What is your email?
+                    </label>
+                    <input type="email" name="email" maxlength="50" required placeholder="jo@maildomain.com" class="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                </div>
+
+                <!-- Question 8: Phone -->
+                <div class="question mb-8">
+              <label class="block text-lg font-semibold mb-4">
+                        8. What is your phone? (Pattern: 999-999-9999)
+                    </label>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-gray-100 px-3 py-2 border border-gray-600 rounded-md text-gray-300 font-medium">+1</span>
+                        <input type="tel" name="phone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="12" required placeholder="999-999-9999" class="flex-1 px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <p class="text-sm text-gray-400 mt-1">Must be USA phone number only (10-digit with dashes).</p>
+                </div>
+                    <div class="flex justify-between">
+                    <button type="button" onclick="goToPage(1)" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded">
+                        Previous
+                    </button>
+                    <button type="button" onclick="goToPage(3)" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded">
+                        Next
+                    </button>
+</div>
+
+            </div>
+
+            <!-- Page 3 -->
+            <div id="page-3" class="survey-page bg-gray-800 border border-gray-700
+ rounded-lg shadow-lg p-8 hidden">
+                
+                <!-- Question 9: Portfolio Value -->
+                <div class="question mb-8">
+                    <label class="block text-lg font-semibold text-white mb-4">
+                        9. What is the approximate value of your total investment portfolio (excluding real estate and primary residence)? (Optional)
+                    </label>
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="portfolio_value" value="Under $10,000" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Under $10,000</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="portfolio_value" value="$10,000 - $50,000" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">$10,000 - $50,000</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="portfolio_value" value="$50,001 - $100,000" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">$50,001 - $100,000</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="portfolio_value" value="$100,001 - $250,000" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">$100,001 - $250,000</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="portfolio_value" value="$250,001 - $500,000" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">$250,001 - $500,000</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="portfolio_value" value="$500,001 - $1,000,000" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">$500,001 - $1,000,000</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="portfolio_value" value="Over $1,000,000" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Over $1,000,000</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="portfolio_value" value="Prefer not to say" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Prefer not to say</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question 10: Education Spend -->
+                <div class="question mb-8">
+                    <label class="block text-lg font-semibold text-white mb-4">
+                        10. How much do you typically spend on personal development or financial education in a year? (Optional)
+                    </label>
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="education_spend" value="Less than $100" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Less than $100</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="education_spend" value="$100 - $500" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">$100 - $500</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="education_spend" value="$501 - $1,000" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">$501 - $1,000</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="education_spend" value="$1,001 - $2,500" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">$1,001 - $2,500</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="education_spend" value="Over $2,500" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Over $2,500</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="education_spend" value="I don't typically spend on these areas" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">I don't typically spend on these areas</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="education_spend" value="Prefer not to say" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Prefer not to say</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question 11: Employment Status -->
+                <div class="question mb-8">
+                    <label class="block text-lg font-semibold text-white mb-4">
+                        11. What is your current employment status? (Optional)
+                    </label>
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="employment_status" value="Full-time employed" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Full-time employed</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="employment_status" value="Part-time employed" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Part-time employed</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="employment_status" value="Self-employed/Business owner" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Self-employed/Business owner</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="employment_status" value="Retired" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                                                    <span class="text-gray-300">Retired</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="employment_status" value="Student" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Student</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="employment_status" value="Unemployed/Seeking employment" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Unemployed/Seeking employment</span>
+                        </label>
+                        <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-md">
+                            <input type="radio" name="employment_status" value="Other" class="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600">
+                            <span class="text-gray-300">Other</span>
+                        </label>
+                        <input type="text" name="employment_other" maxlength="100" placeholder="Please specify..." class="w-full mt-2 px-3 py-2 border border-gray-600 rounded-md">
+                    </div>
+                </div>
+
+                <!-- Question 12: Age Group -->
+                <div class="question mb-8">
+                    <label class="block text-lg font-semibold text-white mb-4">
+                        12. Which age group best describes you?
+                    </label>
+                    <select name="age_group" class="w-full px-3 py-2 border border-gray-600 rounded-md">
+                        <option value="Under 18">Under 18</option>
+                        <option value="18-24">18–24</option>
+                        <option value="25-34">25–34</option>
+                        <option value="35-44">35–44</option>
+                        <option value="45-54">45–54</option>
+                        <option value="55-64">55–64</option>
+                        <option value="65+">65+</option>
+                    </select>
+                </div>
+
+                <!-- Question 13: Gender -->
+                <div class="question mb-8">
+                    <label class="block text-lg font-semibold text-white mb-4">
+                        13. What is your gender? (Optional)
+                    </label>
+                    <div class="space-y-3">
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="gender" value="Female" class="h-4 w-4 text-primary-600 border-gray-600">
+                            <span>Female</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="gender" value="Male" class="h-4 w-4 text-primary-600 border-gray-600">
+                            <span>Male</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="gender" value="Non-binary" class="h-4 w-4 text-primary-600 border-gray-600">
+                            <span>Non-binary</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="gender" value="Prefer not to say" class="h-4 w-4 text-primary-600 border-gray-600">
+                            <span>Prefer not to say</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="gender" value="Self-describe" class="h-4 w-4 text-primary-600 border-gray-600">
+                            <span>Prefer to self-describe:</span>
+                        </label>
+                        <input type="text" name="gender_custom" maxlength="50" placeholder="Your gender" class="w-full mt-2 px-3 py-2 border border-gray-600 rounded-md">
+                    </div>
+                </div>
+
+                <!-- Question 14: Education -->
+                <div class="question mb-8">
+                    <label class="block text-lg font-semibold text-white mb-4">
+                        14. What is your level of education? (Optional)
+                    </label>
+                    <select name="education_level" class="w-full px-3 py-2 border border-gray-600 rounded-md">
+                        <option value="High School">High School Diploma or GED</option>
+                        <option value="Some College">Some College or Associate's Degree</option>
+                        <option value="Bachelor's">Bachelor's Degree</option>
+                        <option value="Master's">Master's Degree</option>
+                        <option value="Doctorate">Doctorate or Professional Degree</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
+                </div>
+
+                <!-- Question 15: Recommendation Rating -->
+                <div class="question mb-8">
+                    <label class="block text-lg font-semibold text-white mb-4">
+                        15. On a scale of 1–5, how likely are you to recommend Holguin Trades to a friend or colleague?
+                    </label>
+                    <div class="flex space-x-4">
+                        <label class="flex flex-col items-center space-y-1">
+                            <input type="radio" name="recommend" value="1" required class="h-4 w-4 text-primary-600 border-gray-600">
+                            <span class="text-sm text-gray-400">1</span>
+                        </label>
+                        <label class="flex flex-col items-center space-y-1">
+                            <input type="radio" name="recommend" value="2" class="h-4 w-4 text-primary-600 border-gray-600">
+                            <span class="text-sm text-gray-400">2</span>
+                        </label>
+                        <label class="flex flex-col items-center space-y-1">
+                            <input type="radio" name="recommend" value="3" class="h-4 w-4 text-primary-600 border-gray-600">
+                            <span class="text-sm text-gray-400">3</span>
+                        </label>
+                        <label class="flex flex-col items-center space-y-1">
+                            <input type="radio" name="recommend" value="4" class="h-4 w-4 text-primary-600 border-gray-600">
+                            <span class="text-sm text-gray-400">4</span>
+                        </label>
+                        <label class="flex flex-col items-center space-y-1">
+                            <input type="radio" name="recommend" value="5" class="h-4 w-4 text-primary-600 border-gray-600">
+                            <span class="text-sm text-gray-400">5</span>
+                        </label>
+                    </div>
+                    <button type="button" onclick="goToPage(2)" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded mb-4">
+                        Previous
+                        </button>
+
+                </div>
+
+                <!-- Submit -->
+                <div class="mt-8">
+                    <button type="submit" class="btn-submit bg-primary-600 text-white py-3 px-6 rounded-md w-full hover:bg-primary-700 transition">
+                        Submit Survey
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+  window.goToPage = function (pageNum) {
+    const pages = document.querySelectorAll('.survey-page');
+    pages.forEach((p) => p.classList.add('hidden'));
+
+    const targetPage = document.getElementById(`page-${pageNum}`);
+    if (targetPage) targetPage.classList.remove('hidden');
+
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+
+    const percent = (pageNum / pages.length) * 100;
+    progressBar.style.width = percent + '%';
+    progressText.textContent = `Page ${pageNum} of ${pages.length}`;
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    window.goToPage(1);
+  });
+  
+</script>
+</body>
+</html>
