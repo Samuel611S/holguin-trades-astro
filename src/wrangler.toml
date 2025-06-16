@@ -1,0 +1,17 @@
+name = "submit-form-api"
+type = "javascript"
+
+account_id = "${CF_ACCOUNT_ID}"
+compatibility_date = "2025-06-16"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+d1_databases = [
+  { binding = "DB", database_name = "survey_v2", database_id = "${D1_DATABASE_ID}" }
+]
+
+[[pages_functions]]
+directory = "./functions"
+
+[vars]
+TURNSTILE_SECRET_KEY = "${TURNSTILE_SECRET_KEY}"

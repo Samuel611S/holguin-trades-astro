@@ -28,7 +28,7 @@
       </div>
 
       <!-- Survey Form -->
-      <form id="surveyForm" class="space-y-6" onsubmit="return validateAllRequiredFields()">
+      <form id="surveyForm" action="/api/submitForm" method="POST" class="space-y-6" onsubmit="return validateAllRequiredFields()">
             <input type="hidden" name="formType" value="survey" />
             <input type="hidden" name="trackingData" id="trackingData" />
 
@@ -458,7 +458,14 @@
                 </div>
                 <p class="text-sm text-gray-400 mt-6 mb-2">Please verify you are human before submitting:</p>
                 <div class="mt-6">
-            <div class="cf-turnstile" data-sitekey="0x4AAAAAABd9WX40ycLOMMtB" data-theme="dark"></div>
+                <div
+                class="cf-turnstile"
+                data-sitekey="0x4AAAAAABd9WX40ycLOMMtB"
+                data-response-field-name="cf-turnstile-response"
+                data-theme="dark"
+                ></div>
+
+
           </div>
                 <!-- Submit -->
                 <div class="mt-8">
