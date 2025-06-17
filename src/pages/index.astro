@@ -4,26 +4,28 @@ import CoachingTable from '../components/CoachingTable.astro';
 import TradingSignalsTable from '../components/TradingSignalsTable.astro';
 import PerformanceChart from '../components/PerformanceChart.astro';
 import TestimonialCard from '../components/TestimonialCard.astro';
-import summaryData from '../data/sell_Put_Weekly_Summary_Total.json';
-
-const totalRow = summaryData.find(row => row.Option_Contract_Weekly_Expiration_Date_Unix_Time === "Total:");
-const averageRow = summaryData.find(row => row.Option_Contract_Weekly_Expiration_Date_Unix_Time === "Average:");
-
-const totalTrades = totalRow?.Total_Number_Of_Trades_Net_Of_Will_Roll || "N/A";
-const winRate = averageRow?.SuccessPercent || "N/A";
-const avgAnnualized = averageRow?.average_Annualized_Weekly_Compounded_Gain_in_Percent || "N/A";
-const spyAnnualized = averageRow?.SPY_Year_To_Date_Gain_Percent || "N/A";
+import StatisticsTable from '../components/StatisticsTable.astro';
+// Removed direct import of summaryData and related variables as PerformanceChart and StatisticsTable handle them
+// import summaryData from '../data/sell_Put_Weekly_Summary_Total.json';
+// const totalRow = summaryData.find(row => row.Option_Contract_Weekly_Expiration_Date_Unix_Time === "Total:");
+// const averageRow = summaryData.find(row => row.Option_Contract_Weekly_Expiration_Date_Unix_Time === "Average:");
+// const totalTrades = totalRow?.Total_Number_Of_Trades_Net_Of_Will_Roll || "N/A";
+// const winRate = averageRow?.SuccessPercent || "N/A";
+// const avgAnnualized = averageRow?.average_Annualized_Weekly_Compounded_Gain_in_Percent || "N/A";
+// const spyAnnualized = averageRow?.SPY_Year_To_Date_Gain_Percent || "N/A";
 
 
 // Take first 2 testimonials
+// Make sure testimonialsData is imported before being used
+import { testimonialsData } from '../data/testimonials'; // Moved this import up for clarity and correct usage
 const featuredTestimonials = testimonialsData.slice(0, 2);
 
 import { getCollection } from 'astro:content';
 
-import { statisticsData } from '../data/statistic';
+import { statisticsData } from '../data/statistic'; // This is now used by StatisticsTable component directly
 import { coachingData } from '../data/coaching_price';
 import { siteData } from '../data/site';
-import { testimonialsData } from '../data/testimonials';
+
 
 // Find the row labeled "Average:"
 // Get featured blog posts
@@ -36,13 +38,11 @@ const featuredPosts = allBlogPosts
 
 <Layout title={siteData.companyName}>
 
-  <!-- Hero Section -->
   <section class="min-h-screen flex items-center justify-center py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-        <!-- Hero Content -->
-        <div class="text-center lg:text-left">
+        <div id="main-content" class="text-center lg:text-left">
           <h1 class="text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-slide-up opacity-0 bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent" style="animation-delay: 200ms">
             Trade Smarter: Confident Strategies, Real Weekly Results
           </h1>
@@ -50,11 +50,10 @@ const featuredPosts = allBlogPosts
           <p class="text-xl lg:text-2xl text-gray-300 mb-8 max-w-2xl animate-slide-up opacity-0" style="animation-delay: 400ms">
             Transparent Signals, Proven Results: Trade smarter with insights you can trust.
           </p>
-          </div>
+        </div>
 
 
-        <!-- Hero Video Placeholder -->
-      <div id="hero-video-wrapper" class="relative group aspect-w-16 aspect-h-9 bg-black rounded-lg overflow-hidden shadow-lg">
+        <div id="hero-video-wrapper" class="relative group aspect-w-16 aspect-h-9 bg-black rounded-lg overflow-hidden shadow-lg">
   <video 
     id="hero-video"
     autoplay 
@@ -67,7 +66,6 @@ const featuredPosts = allBlogPosts
     Your browser does not support the video tag.
   </video>
 
-  <!-- Mute/Unmute Button -->
   <button
     id="mute-button"
     class="absolute bottom-4 right-4 z-20 bg-black/70 text-white text-sm px-3 py-1 rounded hover:bg-black/90 transition"
@@ -97,11 +95,8 @@ const featuredPosts = allBlogPosts
 
     </div>
   </div>
-</section>  <!-- Statistics Section -->
- <!-- Separator -->
-  <div class="border-t border-gray-600 my-16"></div>
-    <!-- Performance Chart Section -->
-<section class="py-20 bg-gray-800/50 backdrop-blur-sm">
+</section>   <div class="border-t border-gray-600 my-16"></div>
+    <section class="py-20 bg-gray-800/50 backdrop-blur-sm">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     
     <div class="text-center mb-12">
@@ -113,14 +108,12 @@ const featuredPosts = allBlogPosts
       </p>
     </div>
 
-    <!-- Performance Chart -->
     <div class="flex justify-center">
       <div class="w-full max-w-5xl">
         <PerformanceChart />
       </div>
     </div>
 
-    <!-- Updated Chart Explanation -->
     <div class="mt-8 text-center max-w-4xl mx-auto text-gray-300 text-base leading-relaxed">
       <p>
         Our trading strategy aims for consistent returns. To provide a clear picture of our performance while smoothing out short-term market fluctuations, we display our <strong>52-Week Rolling Annualized Returns</strong>. This shows the average yearly return of our strategy over any given 52-week period, providing a robust view of long-term performance. We compare this to the <strong>52-Week Rolling Annualized Return of the S&P 500 ETF (SPY)</strong>, representing the broader market. This allows for a fair, apples-to-apples comparison of our strategy's long-term effectiveness against a widely recognized benchmark.
@@ -135,41 +128,9 @@ const featuredPosts = allBlogPosts
     </div>
 
     <div class="mt-16 text-center max-w-4xl mx-auto text-white">
-  <h3 class="text-3xl lg:text-4xl font-bold mb-8">Recent Trading Signal Metrics</h3>
-  <div class="overflow-x-auto rounded-lg shadow">
-    <table class="min-w-full table-auto text-left text-gray-300 bg-gray-900 rounded-lg">
-      <thead>
-        <tr class="bg-gray-700 text-white text-sm uppercase tracking-wider">
-          <th class="px-6 py-3">Metric</th>
-          <th class="px-6 py-3">Value</th>
-          <th class="px-6 py-3">Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="border-t border-gray-700">
-          <td class="px-6 py-4">Total Completed Trades</td>
-          <td class="px-6 py-4">{totalTrades}</td>
-          <td class="px-6 py-4">Number of trades executed and closed by the system in the past 12 months.</td>
-        </tr>
-        <tr class="border-t border-gray-700">
-          <td class="px-6 py-4">Win Rate</td>
-          <td class="px-6 py-4">{winRate}</td>
-          <td class="px-6 py-4">The percentage of trades that closed profitably.</td>
-        </tr>
-        <tr class="border-t border-gray-700">
-          <td class="px-6 py-4">Avg. Annualized Return</td>
-          <td class="px-6 py-4">{avgAnnualized}</td>
-          <td class="px-6 py-4">The average compounded yearly return, based on weekly performance.</td>
-        </tr>
-        <tr class="border-t border-gray-700">
-          <td class="px-6 py-4">SPY Avg. Annualized Return</td>
-          <td class="px-6 py-4">{spyAnnualized}</td>
-          <td class="px-6 py-4">The average return of the S&P 500 (SPY) over the same 9-month period for comparison.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+      <h3 class="text-3xl lg:text-4xl font-bold mb-8">Recent Trading Signal Metrics</h3>
+      <StatisticsTable />
+    </div>
 
 
   </div>
@@ -226,8 +187,7 @@ const featuredPosts = allBlogPosts
 </section>
 
 
-  <!-- Trading Signals Pricing Section -->
-<section id="trading-signals" class="py-20 bg-gray-800/50 backdrop-blur-sm">
+  <section id="trading-signals" class="py-20 bg-gray-800/50 backdrop-blur-sm">
   
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-16 reveal-on-scroll opacity-0" data-animation="animate-slide-up">
@@ -240,15 +200,12 @@ const featuredPosts = allBlogPosts
         <div class="mb-12">
           <img 
             src="/pictures/trading-signals.jpg" 
-            alt="AI-generated image illustrating trading signals alerts dashboard at Holguin Trades" 
-            class="rounded-lg shadow-lg mx-auto object-cover h-80 w-full max-w-3xl"
+            alt="Image illustrating trading signals alerts dashboard at Holguin Trades" class="rounded-lg shadow-lg mx-auto object-cover h-80 w-full max-w-3xl"
           />
         </div>
 
     </div>
-<div class="overflow-x-auto rounded-lg">
-  <table class="min-w-full ..."> <TradingSignalsTable /> </table>
-</div>
+<TradingSignalsTable /> 
     
   </div>
 </section> 
@@ -304,11 +261,16 @@ const featuredPosts = allBlogPosts
         </p>
       </div>
     </div>
+
+    <p class="text-xl text-gray-200 mb-8 max-w-3xl mx-auto">
+      As a blind motivational speaker, I transform events into unforgettable experiences with a unique story that inspires, connects, and empowers audiences.
+      Let’s talk for 15 minutes — <a href="/contact" class="text-primary-400 font-semibold underline hover:text-primary-300">schedule a consultation</a> to explore how I can bring impactful storytelling and authentic connection to your event.
+    </p>
+
   </div>
 </section>
 
-  <!-- Coaching Programs Section (TABLE as per Alfredo's latest request) -->
-   <section id="coaching" class="py-20 relative overflow-hidden">
+  <section id="coaching" class="py-20 relative overflow-hidden">
     <div class="absolute inset-0 z-0">
       <div class="absolute top-0 left-0 w-64 h-64 bg-primary-500/5 rounded-full blur-3xl"></div>
       <div class="absolute bottom-0 right-0 w-96 h-96 bg-primary-500/5 rounded-full blur-3xl"></div>
@@ -326,8 +288,7 @@ const featuredPosts = allBlogPosts
           <div class="mb-12">
             <img 
               src="/pictures/coaching.jpg" 
-              alt="AI-generated coaching session with charts, notes, and focused trader at Holguin Trades" 
-              class="rounded-lg shadow-lg mx-auto object-cover h-80 w-full max-w-3xl"
+              alt="Coaching session with charts, notes, and focused trader at Holguin Trades" class="rounded-lg shadow-lg mx-auto object-cover h-80 w-full max-w-3xl"
             />
           </div>
 
@@ -348,8 +309,7 @@ const featuredPosts = allBlogPosts
     <div class="mb-12">
       <img 
         src="/pictures/audience.jpg" 
-        alt="AI-generated audience clapping and engaging with motivational speaker at Holguin Trades event" 
-        class="rounded-lg shadow-lg mx-auto object-cover h-96 w-full max-w-4xl"
+        alt="Audience clapping and engaging with motivational speaker at Holguin Trades event" class="rounded-lg shadow-lg mx-auto object-cover h-96 w-full max-w-4xl"
       />
 
     </div>
@@ -407,33 +367,7 @@ const featuredPosts = allBlogPosts
 
   </div>
 </section>
-<!-- <section id="free-trial" class="py-20 bg-gray-800/50 backdrop-blur-sm">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-16 reveal-on-scroll opacity-0" data-animation="animate-slide-up">
-      <h2 class="text-4xl lg:text-5xl font-bold mb-6 text-white">
-        Ready to Trade Smarter?
-      </h2>
-      <p class="text-xl text-gray-300 max-w-3xl mx-auto">
-        Join the <span class="font-bold text-primary-400">x subscribers</span> who got tired of pacing.<br/>
-        Get your <span class="font-bold text-primary-400 underline">14-day free trial</span> — start today!
-      </p>
-    </div>
-
-    <div class="flex justify-center">
-      <a 
-        href="/signup" 
-        class="inline-block px-10 py-4 bg-primary-500 text-white font-bold text-lg rounded-lg shadow-lg hover:bg-primary-600 transition-all duration-300 hover:-translate-y-1"
-      >
-        Start My Free Trial
-      </a>
-    </div>
-
-    <p class="mt-4 text-center text-sm text-gray-400">
-      No commitment. Cancel anytime.
-    </p>
-  </div>
-</section> -->
-    <div class="border-t border-gray-600 my-16"></div>
+<div class="border-t border-gray-600 my-16"></div>
 
 <script is:inline>
   window.addEventListener('DOMContentLoaded', () => {
@@ -511,9 +445,5 @@ const featuredPosts = allBlogPosts
     object-fit: contain !important;
   }
 </style>
-
-
-
-
 
 </Layout>

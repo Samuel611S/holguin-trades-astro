@@ -9,10 +9,10 @@ export const tradingServices = [
     name: "Weekly Put Selling Alerts",
     description: "Text alerts for selling puts on a weekly basis.",
     paymentOptions: [
-      { name: "PayPal", link: "http://paypal.com" },
+      { name: "Pay via PayPal", link: "http://paypal.com" }, // PayPal link remains as last provided
       {
-        name: "Credit card",
-        link: "https://buy.stripe.com/eVqcN6c8S56c35D1zr9Zm03" // ✅ from Excel file
+        name: "Pay via 💳", // Updated: "Credit card" changed to "Pay via 💳"
+        link: "https://buy.stripe.com/eVqcN6c8S56c35D1zr9Zm03" // Stripe link remains as last provided
       }
     ],
     productPurchasePeriod: "Monthly",
@@ -27,4 +27,3 @@ export const tradingServices = [
     ]
   }
 ];
-

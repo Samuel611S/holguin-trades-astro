@@ -1,5 +1,7 @@
 ---
 import chartData from '../data/sell_Put_Weekly_Summary_Per_Week.json';
+import summaryData from '../data/sell_Put_Weekly_Summary_Total.json';
+
 
 // Filter data on the server side - get only the past 12 weeks
 const validData = chartData.filter(row => 
@@ -12,14 +14,28 @@ const filteredData = validData
   .slice(-12); // ✅ only the last 12 weeks
 
 // Get the stats from the total summary file
-import summaryData from '../data/sell_Put_Weekly_Summary_Total.json';
-const totalRow = summaryData.find(row => row.Option_Contract_Weekly_Expiration_Date_Unix_Time === "Total:");
-const averageRow = summaryData.find(row => row.Option_Contract_Weekly_Expiration_Date_Unix_Time === "Average:");
+// Ensure these rows exist before trying to access properties
+const totalRow = summaryData.find(row => row.Option_Contract_Weekly_Expiration_Date_Unix_Time === "Total:"); 
+const averageRow = summaryData.find(row => row.Option_Contract_Weekly_Expiration_Date_Unix_Time === "Average:"); 
 
-const totalTrades = totalRow?.Total_Number_Of_Trades_Net_Of_Will_Roll || "N/A";
-const winRate = averageRow?.SuccessPercent || "N/A";
-const avgAnnualized = averageRow?.average_Annualized_Weekly_Compounded_Gain_in_Percent || "N/A";
-const spyAnnualized = averageRow?.SPY_Year_To_Date_Gain_Percent || "N/A";
+// Extract and format data, providing fallbacks
+const totalTrades = totalRow?.Total_Number_Of_Trades_Net_Of_Will_Roll || "N/A"; 
+
+// Function to parse percentage string and format to one decimal place
+const formatPercentage = (value: string | number | undefined): string => {
+  if (typeof value === 'string') {
+    const num = parseFloat(value.replace('%', ''));
+    return isNaN(num) ? "N/A" : num.toFixed(1) + '%';
+  }
+  if (typeof value === 'number') {
+    return value.toFixed(1) + '%';
+  }
+  return "N/A";
+};
+
+const winRate = formatPercentage(averageRow?.SuccessPercent); 
+const mySystemAvgAnnualized = formatPercentage(averageRow?.average_Annualized_Weekly_Compounded_Gain_in_Percent); 
+const spyAnnualized = formatPercentage(averageRow?.SPY_Year_To_Date_Gain_Percent); 
 ---
 
 <div class="performance-dashboard">
@@ -28,6 +44,10 @@ const spyAnnualized = averageRow?.SPY_Year_To_Date_Gain_Percent || "N/A";
       <div class="stat-card">
         <div class="stat-value">{winRate}</div>
         <div class="stat-label">Win Rate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{mySystemAvgAnnualized}</div> {/* Added: My System Avg. Annualized Return */}
+        <div class="stat-label">My System Avg. Annualized Return</div>
       </div>
       <div class="stat-card">
         <div class="stat-value">{spyAnnualized}</div>
@@ -44,413 +64,418 @@ const spyAnnualized = averageRow?.SPY_Year_To_Date_Gain_Percent || "N/A";
   </div>
 </div>
 
-<!-- Embed filtered data in a script tag -->
 <script type="application/json" id="chart-data" set:html={JSON.stringify(filteredData)}></script>
 
-<!-- TypeScript Chart Implementation -->
 <script>
   // Extend window to allow custom property
-declare global {
-  interface Window {
-    graphHasError: boolean;
+  declare global {
+    interface Window {
+      graphHasError: boolean;
+    }
   }
-}
-window.graphHasError = false;
+  window.graphHasError = false;
 
-// Type definitions
-interface RawDataRow {
-  Option_Contract_Weekly_Expiration_Date_Unix_Time: number;
-  SuccessPercent: string;
-  SPY_Year_To_Date_Gain_Percent: string;
-}
+  // Type definitions
+  interface RawDataRow {
+    Option_Contract_Weekly_Expiration_Date_Unix_Time: number;
+    SuccessPercent: string;
+    SPY_Year_To_Date_Gain_Percent: string;
+  }
 
-interface ChartDataPoint {
-  week: string;
-  sellPut: number;
-  spy: number;
-}
+  interface ChartDataPoint {
+    week: string;
+    sellPut: number;
+    spy: number;
+  }
 
-// Get the data injected from Astro
-const chartDataElement = document.getElementById('chart-data');
-if (!chartDataElement || !chartDataElement.textContent) {
-  throw new Error('Chart data element not found or empty');
-}
-
-let rawData: RawDataRow[] = [];
-
-try {
+  // Get the data injected from Astro
   const chartDataElement = document.getElementById('chart-data');
   if (!chartDataElement || !chartDataElement.textContent) {
     throw new Error('Chart data element not found or empty');
   }
 
-  rawData = JSON.parse(chartDataElement.textContent);
+  let rawData: RawDataRow[] = [];
 
-  // ✅ Check 6: First row fields exist
-  const first = rawData[0];
-  if (!first?.SPY_Year_To_Date_Gain_Percent || !first?.SuccessPercent) {
-    throw new Error('Missing SPY or SuccessPercent in FIRST row');
+  try {
+    const chartDataElement = document.getElementById('chart-data');
+    if (!chartDataElement || !chartDataElement.textContent) {
+      throw new Error('Chart data element not found or empty');
+    }
+
+    rawData = JSON.parse(chartDataElement.textContent);
+
+    // ✅ Check 6: First row fields exist
+    const first = rawData[0];
+    if (!first?.SPY_Year_To_Date_Gain_Percent || !first?.SuccessPercent) {
+      throw new Error('Missing SPY or SuccessPercent in FIRST row');
+    }
+
+    // ✅ Check 7: Last row fields exist
+    const last = rawData[rawData.length - 1];
+    if (!last?.SPY_Year_To_Date_Gain_Percent || !last?.SuccessPercent) {
+      throw new Error('Missing SPY or SuccessPercent in LAST row');
+    }
+
+    // ✅ Check 8: Middle row fields exist
+    for (let i = 1; i < rawData.length - 1; i++) {
+      const row = rawData[i];
+      if (!row?.SPY_Year_To_Date_Gain_Percent || !row?.SuccessPercent) {
+        throw new Error(`Missing SPY or SuccessPercent in middle row ${i}`);
+      }
+    }
+
+  } catch (error) {
+    console.error('[GRAPH ERROR]', error.message);
+    window.graphHasError = true;
+
+    const chart = document.querySelector('.chart-container');
+    if (chart) chart.remove();
+
+    const stats = document.querySelector('.performance-dashboard');
+    if (stats) stats.remove();
+
+    throw new Error('Invalid graph data. Aborting rendering.');
   }
 
-  // ✅ Check 7: Last row fields exist
-  const last = rawData[rawData.length - 1];
-  if (!last?.SPY_Year_To_Date_Gain_Percent || !last?.SuccessPercent) {
-    throw new Error('Missing SPY or SuccessPercent in LAST row');
+
+  function unixToDate(unixTime: number): string {
+    const date = new Date(unixTime * 1000);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
-  // ✅ Check 8: Middle row fields exist
-  for (let i = 1; i < rawData.length - 1; i++) {
-    const row = rawData[i];
-    if (!row?.SPY_Year_To_Date_Gain_Percent || !row?.SuccessPercent) {
-      throw new Error(`Missing SPY or SuccessPercent in middle row ${i}`);
+  // Modified: Function to parse percent and ensure one decimal place
+  function parsePercent(str: string | number): number {
+    if (typeof str === 'string') {
+      const num = parseFloat(str.replace('%', ''));
+      return isNaN(num) ? 0 : parseFloat(num.toFixed(1));
+    }
+    return parseFloat(String(str)).toFixed(1) || 0;
+  }
+
+  // Convert your real data into { week, sellPut, spy }
+  const chartData: ChartDataPoint[] = rawData.map((row: RawDataRow, index: number): ChartDataPoint => {
+    return {
+      week: unixToDate(row.Option_Contract_Weekly_Expiration_Date_Unix_Time),
+      sellPut: parsePercent(row.SuccessPercent),
+      spy: parsePercent(row.SPY_Year_To_Date_Gain_Percent)
+    };
+  });
+
+  // Calculate stats for dashboard - these are now handled by Astro component directly
+  // Remove or comment out these lines as they are no longer needed for the dashboard display
+  /*
+  const ourSuccess: number[] = chartData.map(d => d.sellPut);
+  const spySuccess: number[] = chartData.map(d => d.spy);
+
+  const avgSuccess: number = ourSuccess.reduce((a, b) => a + b, 0) / ourSuccess.length;
+  const avgSpy: number = spySuccess.reduce((a, b) => a + b, 0) / spySuccess.length;
+  const outperformance: number = avgSuccess - avgSpy;
+  */
+
+  // Update stat cards - these elements are no longer needed
+  /*
+  const avgSuccessEl = document.getElementById('avgSuccess');
+  const avgSpyEl = document.getElementById('avgSpy');
+  const outperformanceEl = document.getElementById('outperformance');
+
+  if (avgSuccessEl) avgSuccessEl.textContent = avgSuccess.toFixed(1) + '%';
+  if (avgSpyEl) avgSpyEl.textContent = avgSpy.toFixed(1) + '%';
+  if (outperformanceEl) {
+    outperformanceEl.textContent = (outperformance >= 0 ? '+' : '') + outperformance.toFixed(1) + '%';
+    outperformanceEl.style.color = outperformance >= 0 ? '#10B981' : '#EF4444';
+  }
+  */
+
+  // Global variables for interaction
+  let hoveredIndex: number = -1;
+  let tooltip: HTMLDivElement | null = null;
+
+  function createTooltip(): HTMLDivElement {
+    if (tooltip) return tooltip;
+    
+    tooltip = document.createElement('div');
+    tooltip.style.position = 'absolute';
+    tooltip.style.background = 'rgba(17, 24, 39, 0.95)';
+    tooltip.style.color = '#F9FAFB';
+    tooltip.style.padding = '8px 12px';
+    tooltip.style.borderRadius = '8px';
+    tooltip.style.fontSize = '12px';
+    tooltip.style.pointerEvents = 'none';
+    tooltip.style.opacity = '0';
+    tooltip.style.transition = 'opacity 0.2s ease';
+    tooltip.style.zIndex = '1000';
+    tooltip.style.border = '1px solid rgba(75, 85, 99, 0.5)';
+    tooltip.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+    document.body.appendChild(tooltip);
+    return tooltip;
+  }
+
+  function drawStraightLine(ctx, points) {
+    if (points.length < 2) return;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
     }
   }
 
-} catch (error) {
-  console.error('[GRAPH ERROR]', error.message);
-  window.graphHasError = true;
 
-  const chart = document.querySelector('.chart-container');
-  if (chart) chart.remove();
+  function createChart(radiusMultiplier = 1): void {
+    const canvas = document.getElementById('performanceChart') as HTMLCanvasElement | null;
+    if (!canvas) return;
 
-  const stats = document.querySelector('.performance-dashboard');
-  if (stats) stats.remove();
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-  throw new Error('Invalid graph data. Aborting rendering.');
-}
+    // High DPI support
+    const rect: DOMRect = canvas.getBoundingClientRect();
+    const dpr: number = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
 
+    // Dimensions
+    const padding: number = 60;
+    const chartWidth: number = rect.width - padding * 2;
+    const chartHeight: number = rect.height - padding * 2;
 
-function unixToDate(unixTime: number): string {
-  const date = new Date(unixTime * 1000);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
+    // Scaling
+    const allValues: number[] = chartData.flatMap((d: ChartDataPoint) => [d.sellPut, d.spy]);
+    const minValue: number = Math.min(...allValues) - 0.5;
+    const maxValue: number = Math.max(...allValues) + 0.5;
 
-function parsePercent(str: string | number): number {
-  if (typeof str === 'string') {
-    return parseFloat(str.replace('%', ''));
-  }
-  return parseFloat(String(str)) || 0;
-}
+    const getX = (index: number): number => padding + (index * chartWidth) / (chartData.length - 1);
+    const getY = (value: number): number => padding + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
 
-// Convert your real data into { week, sellPut, spy }
-const chartData: ChartDataPoint[] = rawData.map((row: RawDataRow, index: number): ChartDataPoint => {
-  return {
-    week: unixToDate(row.Option_Contract_Weekly_Expiration_Date_Unix_Time),
-    sellPut: parsePercent(row.SuccessPercent),
-    spy: parsePercent(row.SPY_Year_To_Date_Gain_Percent)
-  };
-});
+    // Clear with dark background
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.3)';
+    ctx.fillRect(0, 0, rect.width, rect.height);
 
-// Calculate stats for dashboard
-const ourSuccess: number[] = chartData.map(d => d.sellPut);
-const spySuccess: number[] = chartData.map(d => d.spy);
+    // Grid
+    ctx.strokeStyle = 'rgba(75, 85, 99, 0.2)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
 
-const avgSuccess: number = ourSuccess.reduce((a, b) => a + b, 0) / ourSuccess.length;
-const avgSpy: number = spySuccess.reduce((a, b) => a + b, 0) / spySuccess.length;
-const outperformance: number = avgSuccess - avgSpy;
+    for (let i = 0; i <= 5; i++) {
+      const y: number = padding + (i * chartHeight) / 5;
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(padding + chartWidth, y);
+      ctx.stroke();
+    }
 
-// Update stat cards
-const avgSuccessEl = document.getElementById('avgSuccess');
-const avgSpyEl = document.getElementById('avgSpy');
-const outperformanceEl = document.getElementById('outperformance');
+    for (let i = 0; i < chartData.length; i++) {
+      const x: number = getX(i);
+      ctx.beginPath();
+      ctx.moveTo(x, padding);
+      ctx.lineTo(x, padding + chartHeight);
+      ctx.stroke();
+    }
 
-if (avgSuccessEl) avgSuccessEl.textContent = avgSuccess.toFixed(1) + '%';
-if (avgSpyEl) avgSpyEl.textContent = avgSpy.toFixed(1) + '%';
-if (outperformanceEl) {
-  outperformanceEl.textContent = (outperformance >= 0 ? '+' : '') + outperformance.toFixed(1) + '%';
-  outperformanceEl.style.color = outperformance >= 0 ? '#10B981' : '#EF4444';
-}
+    ctx.setLineDash([]);
 
-// Global variables for interaction
-let hoveredIndex: number = -1;
-let tooltip: HTMLDivElement | null = null;
-
-function createTooltip(): HTMLDivElement {
-  if (tooltip) return tooltip;
-  
-  tooltip = document.createElement('div');
-  tooltip.style.position = 'absolute';
-  tooltip.style.background = 'rgba(17, 24, 39, 0.95)';
-  tooltip.style.color = '#F9FAFB';
-  tooltip.style.padding = '8px 12px';
-  tooltip.style.borderRadius = '8px';
-  tooltip.style.fontSize = '12px';
-  tooltip.style.pointerEvents = 'none';
-  tooltip.style.opacity = '0';
-  tooltip.style.transition = 'opacity 0.2s ease';
-  tooltip.style.zIndex = '1000';
-  tooltip.style.border = '1px solid rgba(75, 85, 99, 0.5)';
-  tooltip.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
-  document.body.appendChild(tooltip);
-  return tooltip;
-}
-
-function drawStraightLine(ctx, points) {
-  if (points.length < 2) return;
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
-  for (let i = 1; i < points.length; i++) {
-    ctx.lineTo(points[i].x, points[i].y);
-  }
-}
-
-
-function createChart(radiusMultiplier = 1): void {
-  const canvas = document.getElementById('performanceChart') as HTMLCanvasElement | null;
-  if (!canvas) return;
-
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-
-  // High DPI support
-  const rect: DOMRect = canvas.getBoundingClientRect();
-  const dpr: number = window.devicePixelRatio || 1;
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.scale(dpr, dpr);
-
-  // Dimensions
-  const padding: number = 60;
-  const chartWidth: number = rect.width - padding * 2;
-  const chartHeight: number = rect.height - padding * 2;
-
-  // Scaling
-  const allValues: number[] = chartData.flatMap((d: ChartDataPoint) => [d.sellPut, d.spy]);
-  const minValue: number = Math.min(...allValues) - 0.5;
-  const maxValue: number = Math.max(...allValues) + 0.5;
-
-  const getX = (index: number): number => padding + (index * chartWidth) / (chartData.length - 1);
-  const getY = (value: number): number => padding + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
-
-  // Clear with dark background
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.3)';
-  ctx.fillRect(0, 0, rect.width, rect.height);
-
-  // Grid
-  ctx.strokeStyle = 'rgba(75, 85, 99, 0.2)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([3, 3]);
-
-  for (let i = 0; i <= 5; i++) {
-    const y: number = padding + (i * chartHeight) / 5;
-    ctx.beginPath();
-    ctx.moveTo(padding, y);
-    ctx.lineTo(padding + chartWidth, y);
-    ctx.stroke();
-  }
-
-  for (let i = 0; i < chartData.length; i++) {
-    const x: number = getX(i);
-    ctx.beginPath();
-    ctx.moveTo(x, padding);
-    ctx.lineTo(x, padding + chartHeight);
-    ctx.stroke();
-  }
-
-  ctx.setLineDash([]);
-
-  // Prepare points for smooth curves
-  const strategyPoints = chartData.map((point, index) => ({
-    x: getX(index),
-    y: getY(point.sellPut)
-  }));
-  
-  const spyPoints = chartData.map((point, index) => ({
-    x: getX(index),
-    y: getY(point.spy)
-  }));
-
-  // Draw filled areas under curves
-  // Strategy fill
-  ctx.fillStyle = 'rgba(6, 182, 212, 0.1)';
-  ctx.beginPath();
-  ctx.moveTo(strategyPoints[0].x, padding + chartHeight);
-  drawStraightLine(ctx, strategyPoints);
-  ctx.lineTo(strategyPoints[strategyPoints.length - 1].x, padding + chartHeight);
-  ctx.closePath();
-  ctx.fill();
-
-  // SPY fill
-  ctx.fillStyle = 'rgba(245, 158, 11, 0.1)';
-  ctx.beginPath();
-  ctx.moveTo(spyPoints[0].x, padding + chartHeight);
-  drawStraightLine(ctx, spyPoints);
-
-  ctx.lineTo(spyPoints[spyPoints.length - 1].x, padding + chartHeight);
-  ctx.closePath();
-  ctx.fill();
-
-  // Our Strategy smooth line
-  ctx.strokeStyle = '#06B6D4';
-  ctx.lineWidth = 3;
-  drawStraightLine(ctx, strategyPoints);
-  ctx.stroke();
-
-  // SPY smooth line
-  ctx.strokeStyle = '#F59E0B';
-  ctx.lineWidth = 3;
-  drawStraightLine(ctx, spyPoints);
-
-  ctx.stroke();
-
-  // Draw points
-  chartData.forEach((point: ChartDataPoint, index: number) => {
-    const x: number = getX(index);
-    const isHovered = index === hoveredIndex;
+    // Prepare points for smooth curves
+    const strategyPoints = chartData.map((point, index) => ({
+      x: getX(index),
+      y: getY(point.sellPut)
+    }));
     
-    // Our Strategy dots
-    ctx.shadowColor = 'rgba(6, 182, 212, 0.5)';
-    ctx.shadowBlur = 8;
-    const yStrategy: number = getY(point.sellPut);
-    ctx.fillStyle = '#06B6D4';
+    const spyPoints = chartData.map((point, index) => ({
+      x: getX(index),
+      y: getY(point.spy)
+    }));
+
+    // Draw filled areas under curves
+    // Strategy fill
+    ctx.fillStyle = 'rgba(6, 182, 212, 0.1)';
     ctx.beginPath();
-    ctx.arc(x, yStrategy, isHovered ? 6 : 4 * radiusMultiplier, 0, 2 * Math.PI);
+    ctx.moveTo(strategyPoints[0].x, padding + chartHeight);
+    drawStraightLine(ctx, strategyPoints);
+    ctx.lineTo(strategyPoints[strategyPoints.length - 1].x, padding + chartHeight);
+    ctx.closePath();
     ctx.fill();
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
 
-
-    // SPY dots
-    ctx.shadowColor = 'rgba(6, 182, 212, 0.5)';
-    ctx.shadowBlur = 8;
-    const ySpy: number = getY(point.spy);
-    ctx.fillStyle = '#F59E0B';
+    // SPY fill
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.1)';
     ctx.beginPath();
-    ctx.arc(x, ySpy, isHovered ? 6 : 4 * radiusMultiplier, 0, 2 * Math.PI);
+    ctx.moveTo(spyPoints[0].x, padding + chartHeight);
+    drawStraightLine(ctx, spyPoints);
+
+    ctx.lineTo(spyPoints[spyPoints.length - 1].x, padding + chartHeight);
+    ctx.closePath();
     ctx.fill();
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
+
+    // Our Strategy smooth line
+    ctx.strokeStyle = '#06B6D4';
+    ctx.lineWidth = 3;
+    drawStraightLine(ctx, strategyPoints);
     ctx.stroke();
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
 
-  });
+    // SPY smooth line
+    ctx.strokeStyle = '#F59E0B';
+    ctx.lineWidth = 3;
+    drawStraightLine(ctx, spyPoints);
 
-  // Axes
-  ctx.strokeStyle = '#9CA3AF';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(padding, padding);
-  ctx.lineTo(padding, padding + chartHeight);
-  ctx.moveTo(padding, padding + chartHeight);
-  ctx.lineTo(padding + chartWidth, padding + chartHeight);
-  ctx.stroke();
+    ctx.stroke();
 
-  // Labels
-  ctx.fillStyle = '#9CA3AF';
-  ctx.font = '11px sans-serif';
-  ctx.textAlign = 'center';
-
-  chartData.forEach((point: ChartDataPoint, index: number) => {
-    if (index % 2 === 0 || chartData.length <= 6) {
+    // Draw points
+    chartData.forEach((point: ChartDataPoint, index: number) => {
       const x: number = getX(index);
-      ctx.fillText(point.week, x, padding + chartHeight + 20);
-    }
-  });
-
-  ctx.textAlign = 'right';
-  for (let i = 0; i <= 5; i++) {
-    const value: number = minValue + (i * (maxValue - minValue)) / 5;
-    const y: number = padding + chartHeight - (i * chartHeight) / 5;
-    ctx.fillText(value.toFixed(1) + '%', padding - 10, y + 4);
-  }
-
-  // Legend
-  ctx.textAlign = 'left';
-  // Legend repositioned to top-left (outside data zone)
-const legendX = padding + 10;
-const legendY = padding - 30;
-
-ctx.font = '13px sans-serif';
-ctx.textAlign = 'left';
-
-// Our Strategy (Blue)
-ctx.fillStyle = '#06B6D4';
-ctx.fillRect(legendX, legendY, 15, 3);
-ctx.fillStyle = '#E5E7EB';
-ctx.fillText('Our Strategy', legendX + 20, legendY + 3);
-
-// SPY Benchmark (Yellow)
-ctx.fillStyle = '#F59E0B';
-ctx.fillRect(legendX, legendY + 20, 15, 3);
-ctx.fillStyle = '#E5E7EB';
-ctx.fillText('SPY Benchmark', legendX + 20, legendY + 23);
-
-
-  // Add mouse event listeners
-  const handleMouseMove = (e: MouseEvent) => {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    
-    let newHoveredIndex = -1;
-    let minDistance = Infinity;
-    
-    chartData.forEach((point, index) => {
-      const x = getX(index);
-      const yStrategy = getY(point.sellPut);
-      const ySpy = getY(point.spy);
+      const isHovered = index === hoveredIndex;
       
-      const distanceStrategy = Math.sqrt((mouseX - x) ** 2 + (mouseY - yStrategy) ** 2);
-      const distanceSpy = Math.sqrt((mouseX - x) ** 2 + (mouseY - ySpy) ** 2);
-      const minDist = Math.min(distanceStrategy, distanceSpy);
-      
-      if (minDist < 20 && minDist < minDistance) {
-        minDistance = minDist;
-        newHoveredIndex = index;
+      // Our Strategy dots
+      ctx.shadowColor = 'rgba(6, 182, 212, 0.5)';
+      ctx.shadowBlur = 8;
+      const yStrategy: number = getY(point.sellPut);
+      ctx.fillStyle = '#06B6D4';
+      ctx.beginPath();
+      ctx.arc(x, yStrategy, isHovered ? 6 : 4 * radiusMultiplier, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+
+
+      // SPY dots
+      ctx.shadowColor = 'rgba(6, 182, 212, 0.5)';
+      ctx.shadowBlur = 8;
+      const ySpy: number = getY(point.spy);
+      ctx.fillStyle = '#F59E0B';
+      ctx.beginPath();
+      ctx.arc(x, ySpy, isHovered ? 6 : 4 * radiusMultiplier, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+
+    });
+
+    // Axes
+    ctx.strokeStyle = '#9CA3AF';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, padding + chartHeight);
+    ctx.moveTo(padding, padding + chartHeight);
+    ctx.lineTo(padding + chartWidth, padding + chartHeight);
+    ctx.stroke();
+
+    // Labels
+    ctx.fillStyle = '#9CA3AF';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+
+    chartData.forEach((point: ChartDataPoint, index: number) => {
+      if (index % 2 === 0 || chartData.length <= 6) {
+        const x: number = getX(index);
+        ctx.fillText(point.week, x, padding + chartHeight + 20);
       }
     });
-    
-    if (newHoveredIndex !== hoveredIndex) {
-      hoveredIndex = newHoveredIndex;
-      createChart(); // Redraw chart
+
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= 5; i++) {
+      const value: number = minValue + (i * (maxValue - minValue)) / 5;
+      const y: number = padding + chartHeight - (i * chartHeight) / 5;
+      ctx.fillText(value.toFixed(1) + '%', padding - 10, y + 4);
+    }
+
+    // Legend
+    ctx.textAlign = 'left';
+    // Legend repositioned to top-left (outside data zone)
+  const legendX = padding + 10;
+  const legendY = padding - 30;
+
+  ctx.font = '13px sans-serif';
+  ctx.textAlign = 'left';
+
+  // Our Strategy (Blue)
+  ctx.fillStyle = '#06B6D4';
+  ctx.fillRect(legendX, legendY, 15, 3);
+  ctx.fillStyle = '#E5E7EB';
+  ctx.fillText('Our Strategy', legendX + 20, legendY + 3);
+
+  // SPY Benchmark (Yellow)
+  ctx.fillStyle = '#F59E0B';
+  ctx.fillRect(legendX, legendY + 20, 15, 3);
+  ctx.fillStyle = '#E5E7EB';
+  ctx.fillText('SPY Benchmark', legendX + 20, legendY + 23);
+
+
+    // Add mouse event listeners
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
       
-      if (hoveredIndex >= 0) {
-        const tooltip = createTooltip();
-        const point = chartData[hoveredIndex];
-        tooltip.innerHTML = `
-          <div style="font-weight: 600; margin-bottom: 4px;">Week of ${point.week}</div>
-          <div style="color: #06B6D4;">● Our Strategy: ${point.sellPut.toFixed(1)}%</div>
-          <div style="color: #F59E0B;">● SPY Benchmark: ${point.spy.toFixed(1)}%</div>
-        `;
-        tooltip.style.left = (e.clientX + 10) + 'px';
-        tooltip.style.top = (e.clientY - 10) + 'px';
-        tooltip.style.opacity = '1';
-      } else {
-        const tooltip = createTooltip();
+      let newHoveredIndex = -1;
+      let minDistance = Infinity;
+      
+      chartData.forEach((point, index) => {
+        const x = getX(index);
+        const yStrategy = getY(point.sellPut);
+        const ySpy = getY(point.spy);
+        
+        const distanceStrategy = Math.sqrt((mouseX - x) ** 2 + (mouseY - yStrategy) ** 2);
+        const distanceSpy = Math.sqrt((mouseX - x) ** 2 + (mouseY - ySpy) ** 2);
+        const minDist = Math.min(distanceStrategy, distanceSpy);
+        
+        if (minDist < 20 && minDist < minDistance) {
+          minDistance = minDist;
+          newHoveredIndex = index;
+        }
+      });
+      
+      if (newHoveredIndex !== hoveredIndex) {
+        hoveredIndex = newHoveredIndex;
+        createChart(); // Redraw chart
+        
+        if (hoveredIndex >= 0) {
+          const tooltip = createTooltip();
+          const point = chartData[hoveredIndex];
+          tooltip.innerHTML = `
+            <div style="font-weight: 600; margin-bottom: 4px;">Week of ${point.week}</div>
+            <div style="color: #06B6D4;">● Our Strategy: ${point.sellPut.toFixed(1)}%</div>
+            <div style="color: #F59E0B;">● SPY Benchmark: ${point.spy.toFixed(1)}%</div>
+          `;
+          tooltip.style.left = (e.clientX + 10) + 'px';
+          tooltip.style.top = (e.clientY - 10) + 'px';
+          tooltip.style.opacity = '1';
+        } else {
+          const tooltip = createTooltip();
+          tooltip.style.opacity = '0';
+        }
+      }
+    };
+    
+    const handleMouseLeave = () => {
+      hoveredIndex = -1;
+      createChart();
+      if (tooltip) {
         tooltip.style.opacity = '0';
       }
-    }
-  };
-  
-  const handleMouseLeave = () => {
-    hoveredIndex = -1;
-    createChart();
-    if (tooltip) {
-      tooltip.style.opacity = '0';
-    }
-  };
-  
-  canvas.addEventListener('mousemove', handleMouseMove);
-  canvas.addEventListener('mouseleave', handleMouseLeave);
-}
+    };
+    
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseleave', handleMouseLeave);
+  }
 
-// Run on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    createChart();
-  }, 200); // ← Wait 200ms before drawing chart
-});
+  // Run on DOM ready
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      createChart();
+    }, 200); // ← Wait 200ms before drawing chart
+  });
 
 
 
 
-window.addEventListener('resize', (): void => {
-  setTimeout(createChart, 100);
-});
+  window.addEventListener('resize', (): void => {
+    setTimeout(createChart, 100);
+  });
 </script>
 
 <style>

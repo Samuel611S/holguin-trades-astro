@@ -14,16 +14,17 @@ const currentPath = Astro.url.pathname;
 ---
 
 <header class="sticky top-0 z-50 bg-gray-900/90 backdrop-blur-md border-b border-primary-500/20">
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:left-1/2 focus:-translate-x-1/2 focus:top-4 focus:z-[100] focus:bg-white focus:text-gray-900 focus:px-4 focus:py-2 focus:rounded-md">
+    Skip to main content
+  </a>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-20">
-      <!-- Logo -->
       <div class="flex items-center animate-fade-in">
         <a href="/" class="flex items-center space-x-3 group">
           <div class="overflow-hidden">
             <img 
-              src="/primary_website_logo1_ht_2025May16.png"  
-              alt="Holguin Trades Logo" 
-              class="h-10 w-auto animate-shark-swim"
+              src="/primary_website_logo1_ht_2025May16.png"  
+              alt="Holguin Trades Logo" class="h-10 w-auto animate-shark-swim"
             />
           </div>
           <div class="hidden sm:block">
@@ -34,7 +35,6 @@ const currentPath = Astro.url.pathname;
         </a>
       </div>
       
-      <!-- Desktop Navigation -->
       <nav class="hidden md:flex items-center space-x-8">
         {navItems.map((item, index) => (
           <a 
@@ -51,7 +51,6 @@ const currentPath = Astro.url.pathname;
           </a>
         ))}
         
-        <!-- CTA Button -->
         <a 
           href="/testimonials-submit-form" 
           class="px-6 py-2.5 bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-600 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary-500/25 animate-slide-down opacity-0"
@@ -61,7 +60,6 @@ const currentPath = Astro.url.pathname;
         </a>
       </nav>
 
-      <!-- Mobile menu button -->
       <button 
         class="md:hidden relative w-10 h-10 flex flex-col justify-center items-center space-y-1.5 group animate-fade-in"
         id="mobile-menu-button"
@@ -73,7 +71,6 @@ const currentPath = Astro.url.pathname;
       </button>
     </div>
 
-    <!-- Mobile Navigation -->
     <div class="md:hidden mobile-menu hidden">
       <div class="px-2 pt-2 pb-3 space-y-1 bg-gray-800/95 backdrop-blur-md rounded-lg mt-2 border border-primary-500/20">
         {navItems.map((item, index) => (
